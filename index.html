@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/material.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -25,9 +26,12 @@
                 <li><a href="#experience" class="nav-link">Experience</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-                ☰
-            </button>
+            <div class="nav-controls">
+                <button id="theme-toggle" class="fab" aria-label="Toggle theme">🌙</button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    ☰
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -659,6 +663,7 @@
     <!-- <p>Built with passion using HTML, CSS &amp; JavaScript</p> -->
     </footer>
 
+    <script src="assets/js/material.js" defer></script>
     <script src="assets/js/scripts.js" defer></script>
 </body>
 </html>
