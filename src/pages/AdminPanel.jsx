@@ -1,89 +1,88 @@
 import { supabase } from "../lib/supabase";
-import React, { useState, useEffect } from 'react';
-import { Mail, Phone, Calendar, CheckCircle, Circle, RefreshCw, Trash2 } from 'lucide-react';
-
+import React, { useState, useEffect } from "react";
+import {
+  Mail,
+  Phone,
+  Calendar,
+  CheckCircle,
+  Circle,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
 
 const AdminPanel = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, unread, read
-  const [error, setError] = useState('');
+  const [filter, setFilter] = useState("all"); // all, unread, read
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
   const fetchMessages = async () => {
-  setLoading(true);
-  setError("");
+    setLoading(true);
+    setError("");
 
-  const { data, error } = await supabase
-    .from("contacts")
-    .select("*")
-    .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("contacts")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    setError("Failed to load messages.");
-  } else {
-    setMessages(data);
-  }
+    if (error) {
+      console.error(error);
+      setError("Failed to load messages.");
+    } else {
+      setMessages(data);
+    }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
+  const markAsRead = async (id, currentStatus) => {
+    const { data, error } = await supabase
+      .from("contacts")
+      .update({ read: !currentStatus })
+      .eq("id", id)
+      .select(); // 👈 force returning updated row
 
-const markAsRead = async (id, currentStatus) => {
-  const { error } = await supabase
-    .from("contacts")
-    .update({ read: !currentStatus })
-    .eq("id", id);
+    console.log("UPDATE RESULT:", data, error);
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+    if (error) {
+      console.error("Update failed:", error);
+      alert(error.message);
+      return;
+    }
 
-  // 🔥 Optimistic UI update
-  setMessages((prev) =>
-    prev.map((m) =>
-      m.id === id ? { ...m, read: !currentStatus } : m
-    )
-  );
-};
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, read: !currentStatus } : m)),
+    );
+  };
 
+  const deleteMessage = async (id) => {
+    if (!window.confirm("Delete this message?")) return;
 
+    const { error } = await supabase.from("contacts").delete().eq("id", id);
 
+    if (error) {
+      console.error(error);
+      return;
+    }
 
-const deleteMessage = async (id) => {
-  if (!window.confirm("Delete this message?")) return;
+    // 🔥 Remove from UI immediately
+    setMessages((prev) => prev.filter((m) => m.id !== id));
+  };
 
-  const { error } = await supabase
-    .from("contacts")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  // 🔥 Remove from UI immediately
-  setMessages((prev) => prev.filter((m) => m.id !== id));
-};
-
-
-
-  const filteredMessages = messages.filter(msg => {
-    if (filter === 'unread') return !msg.read;
-    if (filter === 'read') return msg.read;
+  const filteredMessages = messages.filter((msg) => {
+    if (filter === "unread") return !msg.read;
+    if (filter === "read") return msg.read;
     return true;
   });
 
   const stats = {
     total: messages.length,
-    unread: messages.filter(m => !m.read).length,
-    read: messages.filter(m => m.read).length
+    unread: messages.filter((m) => !m.read).length,
+    read: messages.filter((m) => m.read).length,
   };
 
   return (
@@ -96,7 +95,9 @@ const deleteMessage = async (id) => {
               Contact Messages
             </span>
           </h1>
-          <p className="text-slate-400">Manage your portfolio contact form submissions</p>
+          <p className="text-slate-400">
+            Manage your portfolio contact form submissions
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -105,7 +106,9 @@ const deleteMessage = async (id) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-400 text-sm mb-1">Total Messages</p>
-                <p className="text-3xl font-bold text-slate-100">{stats.total}</p>
+                <p className="text-3xl font-bold text-slate-100">
+                  {stats.total}
+                </p>
               </div>
               <Mail className="text-cyan-400" size={40} />
             </div>
@@ -115,7 +118,9 @@ const deleteMessage = async (id) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-400 text-sm mb-1">Unread</p>
-                <p className="text-3xl font-bold text-emerald-400">{stats.unread}</p>
+                <p className="text-3xl font-bold text-emerald-400">
+                  {stats.unread}
+                </p>
               </div>
               <Circle className="text-emerald-400" size={40} />
             </div>
@@ -136,31 +141,31 @@ const deleteMessage = async (id) => {
         <div className="flex flex-wrap gap-4 mb-6">
           <div className="flex gap-2">
             <button
-              onClick={() => setFilter('all')}
+              onClick={() => setFilter("all")}
               className={`px-4 py-2 rounded-lg transition-all ${
-                filter === 'all'
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                filter === "all"
+                  ? "bg-cyan-500 text-white"
+                  : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50"
               }`}
             >
               All ({stats.total})
             </button>
             <button
-              onClick={() => setFilter('unread')}
+              onClick={() => setFilter("unread")}
               className={`px-4 py-2 rounded-lg transition-all ${
-                filter === 'unread'
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                filter === "unread"
+                  ? "bg-emerald-500 text-white"
+                  : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50"
               }`}
             >
               Unread ({stats.unread})
             </button>
             <button
-              onClick={() => setFilter('read')}
+              onClick={() => setFilter("read")}
               className={`px-4 py-2 rounded-lg transition-all ${
-                filter === 'read'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                filter === "read"
+                  ? "bg-blue-500 text-white"
+                  : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50"
               }`}
             >
               Read ({stats.read})
@@ -172,7 +177,7 @@ const deleteMessage = async (id) => {
             disabled={loading}
             className="px-4 py-2 bg-slate-800/50 text-slate-300 rounded-lg hover:bg-slate-700/50 transition-all flex items-center gap-2 disabled:opacity-50"
           >
-            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
             Refresh
           </button>
         </div>
@@ -187,7 +192,10 @@ const deleteMessage = async (id) => {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <RefreshCw size={40} className="animate-spin mx-auto text-cyan-400 mb-4" />
+            <RefreshCw
+              size={40}
+              className="animate-spin mx-auto text-cyan-400 mb-4"
+            />
             <p className="text-slate-400">Loading messages...</p>
           </div>
         )}
@@ -198,9 +206,9 @@ const deleteMessage = async (id) => {
             <Mail size={48} className="mx-auto text-slate-600 mb-4" />
             <p className="text-slate-400 text-lg">No messages found</p>
             <p className="text-slate-500 text-sm mt-2">
-              {filter === 'unread' && 'All messages have been read'}
-              {filter === 'read' && 'No read messages yet'}
-              {filter === 'all' && 'No contact form submissions yet'}
+              {filter === "unread" && "All messages have been read"}
+              {filter === "read" && "No read messages yet"}
+              {filter === "all" && "No contact form submissions yet"}
             </p>
           </div>
         )}
@@ -211,13 +219,15 @@ const deleteMessage = async (id) => {
               <div
                 key={message.id}
                 className={`bg-slate-800/50 border rounded-xl p-6 transition-all hover:border-cyan-500/50 ${
-                  message.read ? 'border-slate-700/50' : 'border-emerald-500/30'
+                  message.read ? "border-slate-700/50" : "border-emerald-500/30"
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-slate-100">{message.name}</h3>
+                      <h3 className="text-xl font-bold text-slate-100">
+                        {message.name}
+                      </h3>
                       {!message.read && (
                         <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full border border-emerald-500/30">
                           New
@@ -226,20 +236,38 @@ const deleteMessage = async (id) => {
                     </div>
 
                     <div className="flex flex-wrap gap-4 text-sm text-slate-400">
-                      <div className="flex items-center gap-2">
-                        <Mail size={16} className="text-cyan-400" />
-                        <a href={`mailto:${message.email}`} className="hover:text-cyan-400 transition-colors">
-                          {message.email}
-                        </a>
-                      </div>
+                      {message.email && (
+                        <div className="flex items-center gap-2">
+                          <Mail size={16} className="text-cyan-400" />
+                          <a
+                            href={`mailto:${message.email}`}
+                            className="hover:text-cyan-400 transition-colors"
+                          >
+                            {message.email}
+                          </a>
+                        </div>
+                      )}
+
+                      {message.phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone size={16} className="text-emerald-400" />
+                          <a
+                            href={`https://wa.me/${message.phone}`}
+                            className="hover:text-emerald-400 transition-colors"
+                          >
+                            {message.phone}
+                          </a>
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2">
                         <Calendar size={16} className="text-slate-500" />
-                        {new Date(message.created_at).toLocaleString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                        {new Date(message.created_at).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </div>
                     </div>
@@ -250,12 +278,16 @@ const deleteMessage = async (id) => {
                       onClick={() => markAsRead(message.id, message.read)}
                       className={`p-2 rounded-lg transition-all ${
                         message.read
-                          ? 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50'
-                          : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+                          ? "bg-slate-700/50 text-slate-400 hover:bg-slate-600/50"
+                          : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
                       }`}
-                      title={message.read ? 'Mark as unread' : 'Mark as read'}
+                      title={message.read ? "Mark as unread" : "Mark as read"}
                     >
-                      {message.read ? <Circle size={20} /> : <CheckCircle size={20} />}
+                      {message.read ? (
+                        <Circle size={20} />
+                      ) : (
+                        <CheckCircle size={20} />
+                      )}
                     </button>
                     <button
                       onClick={() => deleteMessage(message.id)}
@@ -274,12 +306,23 @@ const deleteMessage = async (id) => {
                 </div>
 
                 <div className="mt-4 flex gap-2">
-                  <a
-                    href={`mailto:${message.email}?subject=Re: Your message from ${message.name}`}
-                    className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-all text-sm font-medium"
-                  >
-                    Reply via Email
-                  </a>
+                  {message.email && (
+                    <a
+                      href={`mailto:${message.email}?subject=Re: Your message from ${message.name}`}
+                      className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-all text-sm font-medium"
+                    >
+                      Reply via Email
+                    </a>
+                  )}
+
+                  {message.phone && (
+                    <a
+                      href={`https://wa.me/${message.phone}`}
+                      className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all text-sm font-medium"
+                    >
+                      Text
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
