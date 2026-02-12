@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://fayisdotdev.github.io/fayisdotdev/",
+  "homepage": "https://fayisdotdev.github.io/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
