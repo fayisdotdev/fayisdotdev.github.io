@@ -814,7 +814,7 @@ const Portfolio = () => {
                   </div>
                 </div>
               </div>
-
+              {/* 
               <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300">
                 <div className="flex items-center gap-4 mb-4">
                   <Phone className="text-cyan-400" size={24} />
@@ -828,9 +828,9 @@ const Portfolio = () => {
                     </a>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300">
+              {/* <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300">
                 <div className="flex items-center gap-4 mb-4">
                   <Phone className="text-emerald-400" size={24} />
                   <div>
@@ -843,7 +843,7 @@ const Portfolio = () => {
                     </a>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300">
                 <div className="flex items-center gap-4 mb-4">
@@ -851,6 +851,7 @@ const Portfolio = () => {
                   <div>
                     <p className="text-sm text-slate-400">Location</p>
                     <p className="text-slate-200">Dubai, UAE</p>
+                    <p className="text-slate-200">Kerala, India</p>
                   </div>
                 </div>
               </div>
