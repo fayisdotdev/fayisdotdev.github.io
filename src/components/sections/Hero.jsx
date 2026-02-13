@@ -35,8 +35,8 @@ const Hero = ({ scrollToSection }) => {
             Muhammad Fayis
           </h1>
           <p className="text-2xl md:text-3xl text-slate-300 font-light">
-            Data Analyst <span className="text-cyan-400">×</span> Software
-            Developer
+            Software Developer <span className="text-cyan-400">×</span> Data
+            Analyst
           </p>
         </div>
 

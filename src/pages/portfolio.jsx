@@ -25,7 +25,6 @@ import {
   X,
 } from "lucide-react";
 
-
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,7 +66,7 @@ const Portfolio = () => {
   const skills = {
     languages: [
       { name: "Dart", level: 90 },
-      { name: "Python", level: 85 },
+      { name: "Python", level: 95 },
       { name: "SQL", level: 80 },
     ],
     frameworks: [
@@ -103,7 +102,8 @@ const Portfolio = () => {
         "Role-based access control",
         "Multi-layer structure (data, domain, presentation)",
       ],
-      link: "https://onbook.web.app/",
+      // link: "https://onbook.web.app/",
+      link: "https://onbook.cloud/",
       icon: Database,
     },
     {
@@ -130,7 +130,7 @@ const Portfolio = () => {
     },
     {
       title: "AZ Education – Institutional App",
-      role: "Flutter Developer & App Manager",
+      role: "Flutter Developer",
       period: "2025 - Present",
       description:
         "Comprehensive institutional app organizing YouTube video classes by courses and subjects with real-time synchronization.",
@@ -177,6 +177,18 @@ const Portfolio = () => {
 
   const experience = [
     {
+      title: "Software Developer (Freelance)",
+      company: "Multiple Clients",
+      location: "U A E and India",
+      period: "April 2024 - Present",
+      responsibilities: [
+        "Built production-grade mobile apps end-to-end",
+        "Integrated Firebase and Supabase backends",
+        "Provided QA, debugging, and performance optimization",
+        "Delivered apps for automotive, education, and service sectors",
+      ],
+    },
+    {
       title: "Software Developer",
       company: "Popular Auto",
       location: "Ontario, Canada (Remote)",
@@ -202,18 +214,7 @@ const Portfolio = () => {
         "Applied EDA on Uber datasets to extract trends",
       ],
     },
-    {
-      title: "Flutter Developer (Freelance)",
-      company: "Multiple Clients",
-      location: "Kerala, India",
-      period: "April 2024 - May 2025",
-      responsibilities: [
-        "Built production-grade mobile apps end-to-end",
-        "Integrated Firebase and Supabase backends",
-        "Provided QA, debugging, and performance optimization",
-        "Delivered apps for automotive, education, and service sectors",
-      ],
-    },
+    
     {
       title: "Flutter Intern",
       company: "GrapesGenix PVT LTD",
@@ -247,9 +248,14 @@ const Portfolio = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            <button
+              className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent focus:outline-none"
+              onClick={() => scrollToSection("home")}
+              aria-label="Go to Home"
+              style={{ cursor: "pointer" }}
+            >
               Fayisdotdev
-            </div>
+            </button>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex gap-8">
