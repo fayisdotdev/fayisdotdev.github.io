@@ -363,7 +363,7 @@ const Portfolio = () => {
           </div>
 
           <p className="text-slate-500 text-sm">
-            © 2025 Muhammad Fayis K.M. Built with React & Supabase
+            © 2025 Muhammad Fayis K M.
           </p>
         </div>
       </footer>
