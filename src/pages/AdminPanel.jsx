@@ -306,14 +306,20 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="mt-4 flex gap-2">
-                  {message.email && (
-                    <a
-                      href={`mailto:${message.email}?subject=Re: Your message from ${message.name}`}
-                      className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-all text-sm font-medium"
-                    >
-                      Reply via Email
-                    </a>
-                  )}
+                  {message.email &&
+                    (() => {
+                      const mailtoLink = `mailto:${message.email}?subject=Re: Your message from ${message.name}`;
+                      console.log("Debug: message.email =", message.email);
+                      console.log("Debug: mailtoLink =", mailtoLink);
+                      return (
+                        <a
+                          href={mailtoLink}
+                          className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-all text-sm font-medium"
+                        >
+                          Reply via Email
+                        </a>
+                      );
+                    })()}
 
                   {message.phone && (
                     <a
