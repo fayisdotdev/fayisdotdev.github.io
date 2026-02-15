@@ -2,6 +2,20 @@ import { Database, Brain, Smartphone, Code } from "lucide-react";
 
 export const projects = [
   {
+    title: "AZ Education – Institutional App",
+    role: "Flutter Developer",
+    period: "2025 - Present",
+    description:
+      "Institutional app organizing YouTube video classes with real-time sync.",
+    tech: ["Flutter", "Supabase", "Provider"],
+    highlights: [
+      "Efficient content loading",
+      "Real-time synchronization",
+      "Scalable architecture",
+    ],
+    icon: Smartphone,
+  },
+  {
     title: "OnBook Solutions – CRM Platform",
     role: "Full-Stack Flutter & React Developer",
     period: "2025",
@@ -31,20 +45,7 @@ export const projects = [
     ],
     icon: Brain,
   },
-  {
-    title: "AZ Education – Institutional App",
-    role: "Flutter Developer",
-    period: "2025 - Present",
-    description:
-      "Institutional app organizing YouTube video classes with real-time sync.",
-    tech: ["Flutter", "Supabase", "Provider"],
-    highlights: [
-      "Efficient content loading",
-      "Real-time synchronization",
-      "Scalable architecture",
-    ],
-    icon: Smartphone,
-  },
+
   {
     title: "Wheel Base – Vehicle Collection",
     role: "Flutter Developer",
