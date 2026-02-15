@@ -4,7 +4,7 @@ export const projects = [
   {
     title: "OnBook Solutions – CRM Platform",
     role: "Full-Stack Flutter & React Developer",
-    period: "June 2025 – Aug 2025",
+    period: "2025",
     description:
       "Enterprise CRM with web and mobile interfaces, real-time dashboards, role-based access, and comprehensive lead management system.",
     tech: ["Flutter", "Firebase", "FastAPI", "Node.js", "AWS", "BLoC"],
