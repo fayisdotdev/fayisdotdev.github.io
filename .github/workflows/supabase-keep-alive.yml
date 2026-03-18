@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: "0 0 */4 * *"  # every 4 days
+  workflow_dispatch:       # allows manual run
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Supabase contacts table
+        run: |
+          curl -X GET "https://rnfiyndptcccsckaecer.supabase.co/rest/v1/contacts?select=id&limit=1" \
+          -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}"
