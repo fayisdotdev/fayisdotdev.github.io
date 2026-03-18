@@ -12,6 +12,14 @@ jobs:
     steps:
       - name: Ping Supabase contacts table
         run: |
-          curl -X GET "https://mfnkvaargkmbsyaniqst.supabase.co/rest/v1/contacts?select=id&limit=1" \
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+          -X GET "https://mfnkvaargkmbsyaniqst.supabase.co/rest/v1/contacts?select=id&limit=1" \
           -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
-          -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+          -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}")
+
+          echo "HTTP Status: $STATUS"
+
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Ping failed!"
+            exit 1
+          fi
