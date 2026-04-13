@@ -129,9 +129,9 @@ const Contact = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-emerald-500/50 transition-all duration-300">
-                <div className="flex items-center gap-4 mb-4">
-                  <MapPin className="text-emerald-400" size={24} />
+              {/* <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-emerald-500/50 transition-all duration-300"> */}
+                {/* <div className="flex items-center gap-4 mb-4"> */}
+                  {/* <MapPin className="text-emerald-400" size={24} />
                   <div>
                     <p className="text-sm text-slate-400">Current Location</p>
                     <div className="flex items-center gap-2">
@@ -152,9 +152,9 @@ const Contact = () => {
                       <span className="inline-block w-2 h-2 bg-cyan-400 rounded-full"></span>
                       <span className="text-slate-200">Kerala, India</span>
                     </div>
-                  </div>
-                </div>
-              </div>
+                  </div> */}
+                {/* </div> */}
+              {/* </div> */}
             </div>
           </div>
 

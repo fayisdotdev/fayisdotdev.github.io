@@ -50,14 +50,14 @@ const Hero = ({ scrollToSection }) => {
         </p>
 
         <div className="flex flex-wrap justify-center gap-4 text-slate-300">
-          <div className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50">
-            <MapPin size={18} className="text-cyan-400" />
-            <span>Dubai, UAE</span>
-          </div>
-          <div className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50">
-            <span className="text-emerald-400">●</span>
-            <span>Available Immediately</span>
-          </div>
+          {/* <div className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50"> */}
+            {/* <MapPin size={18} className="text-cyan-400" /> */}
+            {/* <span>Dubai, UAE</span> */}
+          {/* </div> */}
+          {/* <div className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50"> */}
+            {/* <span className="text-emerald-400">●</span> */}
+            {/* <span>Available Immediately</span> */}
+          {/* </div> */}
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 pt-4">
