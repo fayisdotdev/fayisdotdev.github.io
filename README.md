@@ -1,7 +1,7 @@
 # 👋 Hi, I'm Muhammad Fayis K.M
 
 Flutter Developer | Software Engineer  
-📍 Ajman, UAE | 📞 +917 56 841 1600 | 📧 [muhammadfayiskmofficial@gmail.com](mailto:muhammadfayiskmofficial@gmail.com)  
+📍 KERALA | INDIA 📧 [muhammadfayiskmofficial@gmail.com](mailto:muhammadfayiskmofficial@gmail.com)  
 🔗 [LinkedIn](https://linkedin.com/in/fayisdotdev) | [GitHub](https://github.com/fayisdotdev)
 
 ---
