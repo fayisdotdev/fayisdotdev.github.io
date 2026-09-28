@@ -16,13 +16,11 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState("all"); // all, unread, read
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
-  const fetchMessages = async () => {
-    setLoading(true);
-    setError("");
+  const fetchMessages = async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true);
+      setError("");
+    }
 
     const { data, error } = await supabase
       .from("contacts")
@@ -38,6 +36,31 @@ const AdminPanel = () => {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("contacts")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error(error);
+          setError("Failed to load messages.");
+        } else {
+          setMessages(data);
+        }
+      } catch (error) {
+        console.error(error);
+        setError("Failed to load messages.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMessages();
+  }, []);
 
   const markAsRead = async (id, currentStatus) => {
     const { data, error } = await supabase

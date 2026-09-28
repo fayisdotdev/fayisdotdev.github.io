@@ -15,7 +15,7 @@ export const useMessages = () => {
       setLoading(true);
       const data = await fetchAllMessages();
       setMessages(data);
-    } catch (e) {
+    } catch {
       setError("Failed to load messages");
     } finally {
       setLoading(false);

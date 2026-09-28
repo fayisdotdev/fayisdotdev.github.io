@@ -1,5 +1,4 @@
-const FiltersBar = ({ filter, setFilter }) => {
-  const Btn = ({ value, label }) => (
+const FilterButton = ({ filter, setFilter, value, label }) => (
     <button
       onClick={() => setFilter(value)}
       className={`px-4 py-2 rounded-lg text-sm transition ${
@@ -12,11 +11,12 @@ const FiltersBar = ({ filter, setFilter }) => {
     </button>
   );
 
+const FiltersBar = ({ filter, setFilter }) => {
   return (
     <div className="flex gap-2 mb-6 flex-wrap">
-      <Btn value="all" label="All" />
-      <Btn value="unread" label="Unread" />
-      <Btn value="read" label="Read" />
+      <FilterButton filter={filter} setFilter={setFilter} value="all" label="All" />
+      <FilterButton filter={filter} setFilter={setFilter} value="unread" label="Unread" />
+      <FilterButton filter={filter} setFilter={setFilter} value="read" label="Read" />
     </div>
   );
 };

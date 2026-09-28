@@ -5,24 +5,25 @@ const AdminGuard = ({ children }) => {
   const [allowed, setAllowed] = useState(null);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("admin_access");
+    const checkAccess = () => {
+      const saved = sessionStorage.getItem("admin_access");
 
-    if (saved === "true") {
-      setAllowed(true);
-      return;
-    }
+      if (saved === "true") {
+        setAllowed(true);
+        return;
+      }
 
-    const input = window.prompt("Enter admin secret key:");
+      const input = window.prompt("Enter admin secret key:");
 
-    if (
-      input &&
-      input === import.meta.env.VITE_ADMIN_SECRET
-    ) {
-      sessionStorage.setItem("admin_access", "true");
-      setAllowed(true);
-    } else {
-      setAllowed(false);
-    }
+      if (input && input === import.meta.env.VITE_ADMIN_SECRET) {
+        sessionStorage.setItem("admin_access", "true");
+        setAllowed(true);
+      } else {
+        setAllowed(false);
+      }
+    };
+
+    checkAccess();
   }, []);
 
   if (allowed === null) return null;
