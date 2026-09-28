@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Portfolio from "./pages/Portfolio";
+import Portfolio from "./pages/portfolio";
 import AdminPanel from "./pages/AdminPanel";
 import AdminGuard from "./components/AdminGuard";
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useScrollSpy } from "../hooks/useScrollSpy";
 
 import Background from "../components/layout/Background";
-// import CursorTrail from "../components/layout/CursorTrail";
+import CursorTrail from "../components/layout/CursorTrail";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ScrollToTop from "../components/layout/ScrollToTop";
@@ -39,7 +39,7 @@ const Portfolio = () => {
 
       <Background />
 {/* curser trail */}
-      {/* <CursorTrail /> */}
+      <CursorTrail />
 
       <Navbar
         active={activeSection}
