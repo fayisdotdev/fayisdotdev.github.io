@@ -17,7 +17,7 @@
   animation: fadeIn 1s ease-out;
 }
 
-.cursor-trail {
+/* .cursor-trail {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -35,4 +35,4 @@
   .cursor-trail {
     display: none;
   }
-}
+} */
