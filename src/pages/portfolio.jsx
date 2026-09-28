@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useScrollSpy } from "../hooks/useScrollSpy";
 
 import Background from "../components/layout/Background";
+// import CursorTrail from "../components/layout/CursorTrail";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import ScrollToTop from "../components/layout/ScrollToTop";
 
 import Hero from "../components/sections/Hero";
 import About from "../components/sections/About";
@@ -33,9 +35,11 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+    <div className="portfolio-page min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
 
       <Background />
+{/* curser trail */}
+      {/* <CursorTrail /> */}
 
       <Navbar
         active={activeSection}
@@ -51,6 +55,7 @@ const Portfolio = () => {
       <Experience experience={experience} />
       <Contact />
       <Footer />
+      <ScrollToTop />
 
     </div>
   );
