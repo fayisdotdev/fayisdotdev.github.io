@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { KeyRound, LogIn, LogOut, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-const ADMIN_IDLE_TIMEOUT_MS = 1 * 60 * 1000;
+const ADMIN_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
 const AdminGuard = ({ children }) => {
   const [session, setSession] = useState(null);
