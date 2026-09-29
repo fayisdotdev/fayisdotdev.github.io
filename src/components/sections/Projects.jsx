@@ -1,4 +1,12 @@
-import { ExternalLink, Github } from "lucide-react";
+import {
+  Brain,
+  Code,
+  Database,
+  ExternalLink,
+  Smartphone,
+} from "lucide-react";
+
+const projectIcons = { Brain, Code, Database, Smartphone };
 
 const Projects = ({ projects }) => {
   return (
@@ -12,13 +20,16 @@ const Projects = ({ projects }) => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, idx) => (
-            <div
-              key={idx}
-              className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:scale-105 group"
-            >
+            (() => {
+              const Icon = projectIcons[project.icon] || Smartphone;
+              return (
+                <div
+                  key={idx}
+                  className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:scale-105 group"
+                >
               <div className="p-8 space-y-4">
                 <div className="flex items-start justify-between">
-                  <project.icon
+                  <Icon
                     className="text-cyan-400 group-hover:scale-110 transition-transform duration-300"
                     size={40}
                   />
@@ -69,7 +80,9 @@ const Projects = ({ projects }) => {
                   ))}
                 </div>
               </div>
-            </div>
+                </div>
+              );
+            })()
           ))}
         </div>
       </div>{" "}

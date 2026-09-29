@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useScrollSpy } from "../hooks/useScrollSpy";
 
 import Background from "../components/layout/Background";
@@ -14,7 +14,10 @@ import Projects from "../components/sections/Projects";
 import Experience from "../components/sections/Experience";
 import Contact from "../components/sections/Contact";
 
-import { skills, projects, experience } from "../data";
+import {
+  fetchPortfolioContent,
+  getDefaultPortfolioContent,
+} from "../services/portfolioContentService";
 
 const sections = [
   "home",
@@ -27,7 +30,24 @@ const sections = [
 
 const Portfolio = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [portfolioContent, setPortfolioContent] = useState(
+    getDefaultPortfolioContent,
+  );
   const activeSection = useScrollSpy(sections);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchPortfolioContent()
+      .then((content) => {
+        if (active) setPortfolioContent(content);
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -50,9 +70,9 @@ const Portfolio = () => {
 
       <Hero scrollToSection={scrollToSection} />
       <About />
-      <Skills skills={skills} />
-      <Projects projects={projects} />
-      <Experience experience={experience} />
+      <Skills skills={portfolioContent.skills} />
+      <Projects projects={portfolioContent.projects} />
+      <Experience experience={portfolioContent.experience} />
       <Contact />
       <Footer />
       <ScrollToTop />

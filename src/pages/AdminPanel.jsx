@@ -9,7 +9,9 @@ import {
   RefreshCw,
   Trash2,
   LogOut,
+  BriefcaseBusiness,
 } from "lucide-react";
+import PortfolioContentEditor from "../components/admin/PortfolioContentEditor";
 
 const AdminPanel = () => {
   const [messages, setMessages] = useState([]);
@@ -17,6 +19,7 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState("all"); // all, unread, read
   const [error, setError] = useState("");
   const [signingOut, setSigningOut] = useState(false);
+  const [activeView, setActiveView] = useState("messages");
 
   const handleSignOut = async () => {
     setSigningOut(true);
@@ -127,11 +130,13 @@ const AdminPanel = () => {
           <div>
             <h1 className="text-4xl font-black mb-2">
               <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                Contact Messages
+                {activeView === "messages" ? "Contact Messages" : "Portfolio Content"}
               </span>
             </h1>
             <p className="text-slate-400">
-              Manage your portfolio contact form submissions
+              {activeView === "messages"
+                ? "Manage your portfolio contact form submissions"
+                : "Manage projects, experience, and skills"}
             </p>
           </div>
           <button
@@ -145,6 +150,39 @@ const AdminPanel = () => {
           </button>
         </div>
 
+        <div className="mb-8 flex gap-2 border-b border-slate-800" role="tablist" aria-label="Admin sections">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "messages"}
+            onClick={() => setActiveView("messages")}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+              activeView === "messages"
+                ? "border-cyan-400 text-cyan-300"
+                : "border-transparent text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <Mail size={17} /> Messages
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "portfolio"}
+            onClick={() => setActiveView("portfolio")}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+              activeView === "portfolio"
+                ? "border-cyan-400 text-cyan-300"
+                : "border-transparent text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <BriefcaseBusiness size={17} /> Portfolio
+          </button>
+        </div>
+
+        {activeView === "portfolio" ? (
+          <PortfolioContentEditor />
+        ) : (
+          <>
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
@@ -378,6 +416,8 @@ const AdminPanel = () => {
               </div>
             ))}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
