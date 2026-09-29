@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { KeyRound, LogIn, LogOut, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
+const ADMIN_IDLE_TIMEOUT_MS = 1 * 60 * 1000;
+
 const AdminGuard = ({ children }) => {
   const [session, setSession] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -18,6 +20,11 @@ const AdminGuard = ({ children }) => {
       if (active) {
         setSession(nextSession);
         setCheckingSession(false);
+        if (!nextSession) {
+          setEmail("");
+          setPassword("");
+          setError("");
+        }
       }
     });
 
@@ -40,21 +47,79 @@ const AdminGuard = ({ children }) => {
 
   const isAdmin = session?.user?.app_metadata?.role === "admin";
 
+  useEffect(() => {
+    if (!isAdmin) return undefined;
+
+    let lastActivityAt = Date.now();
+    let timeoutId;
+
+    const signOutIfIdle = () => {
+      const idleTime = Date.now() - lastActivityAt;
+      if (idleTime >= ADMIN_IDLE_TIMEOUT_MS) {
+        void supabase.auth.signOut({ scope: "local" });
+        return;
+      }
+
+      timeoutId = window.setTimeout(
+        signOutIfIdle,
+        ADMIN_IDLE_TIMEOUT_MS - idleTime,
+      );
+    };
+
+    const resetIdleTimer = () => {
+      lastActivityAt = Date.now();
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(signOutIfIdle, ADMIN_IDLE_TIMEOUT_MS);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") signOutIfIdle();
+    };
+
+    const activityEvents = ["pointerdown", "pointermove", "keydown", "scroll", "touchstart"];
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, resetIdleTimer, { passive: true });
+    });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    resetIdleTimer();
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, resetIdleTimer);
+      });
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isAdmin]);
+
   const handleSignIn = async (event) => {
     event.preventDefault();
     setSubmitting(true);
     setError("");
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (signInError) {
-      setError(signInError.message);
+      if (signInError) {
+        setPassword("");
+        setError(
+          signInError.message === "Invalid login credentials"
+            ? "Incorrect email or password. Please try again."
+            : signInError.message,
+        );
+      } else {
+        setEmail("");
+        setPassword("");
+      }
+    } catch {
+      setPassword("");
+      setError("Unable to sign in. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   if (checkingSession) {
@@ -94,14 +159,18 @@ const AdminGuard = ({ children }) => {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSignIn} className="space-y-5">
+          <form
+            onSubmit={handleSignIn}
+            autoComplete="off"
+            className="space-y-5"
+          >
             <label className="block text-sm text-slate-300">
               Email
               <span className="mt-2 flex items-center gap-3 border border-slate-700 bg-slate-950/70 px-3 focus-within:border-cyan-500">
                 <Mail size={18} className="shrink-0 text-slate-500" />
                 <input
                   type="email"
-                  autoComplete="username"
+                  autoComplete="off"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
@@ -116,7 +185,7 @@ const AdminGuard = ({ children }) => {
                 <KeyRound size={18} className="shrink-0 text-slate-500" />
                 <input
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="off"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   required
