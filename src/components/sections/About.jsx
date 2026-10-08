@@ -29,7 +29,7 @@ const About = () => {
               <p className="text-lg text-slate-300 leading-relaxed">
                 Skilled in{" "}
                 <span className="text-cyan-400">
-                  Flutter, Firebase, Supabase, BLoC, GetX, Clean Architecture
+                  Flutter, Firebase, React, Vite, Supabase, Clean Architecture
                 </span>
                 , and{" "}
                 <span className="text-emerald-400">
@@ -49,8 +49,8 @@ const About = () => {
               {[
                 {
                   icon: Code,
-                  title: "Flutter Development",
-                  desc: "Cross-platform mobile apps",
+                  title: "Software Development",
+                  desc: "Cross-platform mobile and web apps",
                 },
                 {
                   icon: BarChart3,

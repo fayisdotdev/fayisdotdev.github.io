@@ -41,8 +41,8 @@ const Hero = ({ scrollToSection }) => {
         </div>
 
         <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-          Building high-performance mobile applications with{" "}
-          <span className="text-cyan-400 font-semibold">Flutter</span> and
+          Building high-performance mobile and web applications with{" "}
+          <span className="text-cyan-400 font-semibold">Flutter and Raact</span> and
           deriving actionable insights from complex datasets using{" "}
           <span className="text-emerald-400 font-semibold">Python</span>,
           <span className="text-emerald-400 font-semibold"> Power BI</span>, and{" "}
