@@ -1,7 +1,5 @@
 import { Menu, X } from "lucide-react";
-import { NAV_ITEMS } from "../../constants/navigation";
-
-const Navbar = ({ active, onScrollTo, isOpen, setIsOpen }) => {
+const Navbar = ({ active, onScrollTo, isOpen, setIsOpen, items, brandName }) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800/50">
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -10,21 +8,21 @@ const Navbar = ({ active, onScrollTo, isOpen, setIsOpen }) => {
             className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent"
             onClick={() => onScrollTo("home")}
           >
-            Fayisdotdev
+            {brandName}
           </button>
 
           <div className="hidden md:flex gap-8">
-            {NAV_ITEMS.map((item) => (
+            {items.map((item) => (
               <button
-                key={item}
-                onClick={() => onScrollTo(item.toLowerCase())}
+                key={item.id}
+                onClick={() => onScrollTo(item.id)}
                 className={`transition-all duration-300 ${
-                  active === item.toLowerCase()
+                  active === item.id
                     ? "text-cyan-400 font-semibold"
                     : "text-slate-300"
                 }`}
               >
-                {item}
+                {item.label}
               </button>
             ))}
           </div>
@@ -39,13 +37,13 @@ const Navbar = ({ active, onScrollTo, isOpen, setIsOpen }) => {
 
         {isOpen && (
           <div className="md:hidden pt-4 flex flex-col gap-4">
-            {NAV_ITEMS.map((item) => (
+            {items.map((item) => (
               <button
-                key={item}
-                onClick={() => onScrollTo(item.toLowerCase())}
+                key={item.id}
+                onClick={() => onScrollTo(item.id)}
                 className="text-left text-slate-300"
               >
-                {item}
+                {item.label}
               </button>
             ))}
           </div>

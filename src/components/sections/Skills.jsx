@@ -16,29 +16,24 @@ const colors = {
   devops: "from-orange-500 to-red-500",
 };
 
-const titles = {
-  languages: "Programming Languages",
-  frameworks: "Frameworks & Backend",
-  stateManagement: "State Management",
-  dataAnalysis: "Data Analysis & ML",
-  devops: "DevOps & Tools",
-};
-
-const Skills = ({ skills }) => {
+const Skills = ({ skills, categories, heading }) => {
   return (
     <section id="skills" className="relative py-32 px-6 bg-slate-900/50">
       <div className="max-w-6xl mx-auto relative z-10">
         <h2 className="text-5xl font-black mb-16 text-center">
           <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-            Skills & Technologies
+            {heading}
           </span>
         </h2>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {Object.entries(skills).map(([category, list]) => {
-            const Icon = icons[category] || Code;
-            const gradient = colors[category] || "from-cyan-500 to-emerald-500";
-            const title = titles[category] || category;
+          {categories.map(({ category_key: category, title, icon, gradient }) => {
+            const Icon = icons[icon] || icons[category] || Code;
+            const knownGradients = Object.values(colors);
+            const safeGradient = knownGradients.includes(gradient)
+              ? gradient
+              : colors[category] || "from-cyan-500 to-emerald-500";
+            const list = skills[category] || [];
 
             return (
               <div key={category} className="space-y-6">
@@ -56,7 +51,7 @@ const Skills = ({ skills }) => {
 
                     <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
                       <div
-                        className={`h-full bg-gradient-to-r ${gradient} rounded-full transition-all duration-1000`}
+                        className={`h-full bg-gradient-to-r ${safeGradient || gradient} rounded-full transition-all duration-1000`}
                         style={{ width: `${skill.level}%` }}
                       ></div>
                     </div>

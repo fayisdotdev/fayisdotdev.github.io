@@ -34,6 +34,12 @@ const Portfolio = () => {
     getDefaultPortfolioContent,
   );
   const activeSection = useScrollSpy(sections);
+  const siteSettings = Object.fromEntries(
+    portfolioContent.siteSettings.map(({ setting_key, setting_value }) => [
+      setting_key,
+      setting_value,
+    ]),
+  );
 
   useEffect(() => {
     let active = true;
@@ -42,12 +48,64 @@ const Portfolio = () => {
       .then((content) => {
         if (active) setPortfolioContent(content);
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error("Portfolio content could not be loaded; showing bundled defaults.", error);
+      });
 
     return () => {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    const settings = Object.fromEntries(
+      portfolioContent.siteSettings.map(({ setting_key, setting_value }) => [
+        setting_key,
+        setting_value,
+      ]),
+    );
+    const seo = Object.fromEntries(
+      portfolioContent.seo.map(({ setting_key, setting_value }) => [
+        setting_key,
+        setting_value,
+      ]),
+    );
+    document.documentElement.lang = seo.language || "en";
+    document.title = seo.document_title || settings.brand_name || "Fayisdotdev";
+
+    const setMeta = (name, content, attribute = "name") => {
+      if (!content) return;
+      let element = document.head.querySelector(`meta[${attribute}="${name}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(attribute, name);
+        document.head.appendChild(element);
+      }
+      element.content = content;
+    };
+    setMeta("description", seo.description);
+    setMeta("og:title", seo.og_title, "property");
+    setMeta("og:description", seo.og_description, "property");
+
+    if (seo.canonical_url) {
+      let canonical = document.head.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement("link");
+        canonical.rel = "canonical";
+        document.head.appendChild(canonical);
+      }
+      canonical.href = seo.canonical_url;
+    }
+    if (seo.favicon_path) {
+      let icon = document.head.querySelector('link[rel="icon"]');
+      if (!icon) {
+        icon = document.createElement("link");
+        icon.rel = "icon";
+        document.head.appendChild(icon);
+      }
+      icon.href = seo.favicon_path;
+    }
+  }, [portfolioContent]);
 
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -66,16 +124,43 @@ const Portfolio = () => {
         onScrollTo={scrollToSection}
         isOpen={isMenuOpen}
         setIsOpen={setIsMenuOpen}
+        brandName={siteSettings.brand_name}
+        items={portfolioContent.navigation.map((item) => ({
+          id: item.section_id,
+          label: item.label,
+        }))}
       />
 
-      <Hero scrollToSection={scrollToSection} />
-      <About />
-      <Skills skills={portfolioContent.skills} />
-      <Projects projects={portfolioContent.projects} />
-      <Experience experience={portfolioContent.experience} />
-      <Contact />
-      <Footer />
-      <ScrollToTop />
+      <Hero
+        scrollToSection={scrollToSection}
+        content={portfolioContent.hero}
+        actions={portfolioContent.heroActions}
+        socialLinks={portfolioContent.socialLinks.filter((item) => item.placement.split(",").includes("hero"))}
+      />
+      <About
+        content={portfolioContent.about}
+        cards={portfolioContent.aboutCards}
+        strengths={portfolioContent.aboutStrengths}
+      />
+      <Skills
+        skills={portfolioContent.skills}
+        categories={portfolioContent.skillCategories}
+        heading={siteSettings.skills_heading}
+      />
+      <Projects
+        projects={portfolioContent.projects}
+        heading={siteSettings.projects_heading}
+      />
+      <Experience
+        experience={portfolioContent.experience}
+        heading={siteSettings.experience_heading}
+      />
+      <Contact content={portfolioContent.contact} />
+      <Footer
+        links={portfolioContent.socialLinks.filter((item) => item.placement.split(",").includes("footer"))}
+        content={portfolioContent.footer}
+      />
+      <ScrollToTop label={siteSettings.back_to_top_label} />
 
     </div>
   );

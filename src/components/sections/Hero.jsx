@@ -1,26 +1,21 @@
-import {
-  Mail,
-  Github,
-  Linkedin,
-  MapPin,
-  Phone,
-  Download,
-  Send,
-  Code,
-  Database,
-  BarChart3,
-  Smartphone,
-  Brain,
-  ExternalLink,
-  ChevronDown,
-  Menu,
-  X,
-} from "lucide-react";
+import { Github, Linkedin, Mail, ChevronDown } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLinktree } from "@fortawesome/free-brands-svg-icons";
 
-{
-  /* Hero Section */
-}
-const Hero = ({ scrollToSection }) => {
+const socialIcons = {
+  github: Github,
+  linkedin: Linkedin,
+  email: Mail,
+  linktree: null,
+};
+
+const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
+  const fields = Object.fromEntries(
+    content.map(({ content_key, field_value }) => [content_key, field_value]),
+  );
+  const highlightedTagline = (fields.tagline || "").split(
+    /(Flutter and Raact|Power BI|Python|ML)/g,
+  );
   return (
     <section
       id="home"
@@ -29,24 +24,31 @@ const Hero = ({ scrollToSection }) => {
       <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
         <div className="space-y-4 animate-fadeIn">
           <p className="text-cyan-400 text-lg font-medium tracking-wide">
-            Hello, I'm
+            {fields.greeting}
           </p>
           <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-blue-400 bg-clip-text text-transparent leading-tight">
-            Muhammad Fayis
+            {fields.name}
           </h1>
           <p className="text-2xl md:text-3xl text-slate-300 font-light">
-            Software Developer <span className="text-cyan-400">×</span> Data
-            Analyst
+            {fields.role}
           </p>
         </div>
 
         <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-          Building high-performance mobile and web applications with{" "}
-          <span className="text-cyan-400 font-semibold">Flutter and Raact</span> and
-          deriving actionable insights from complex datasets using{" "}
-          <span className="text-emerald-400 font-semibold">Python</span>,
-          <span className="text-emerald-400 font-semibold"> Power BI</span>, and{" "}
-          <span className="text-emerald-400 font-semibold">ML</span>
+          {highlightedTagline.map((part, index) =>
+            ["Flutter and Raact", "Power BI", "Python", "ML"].includes(part) ? (
+              <span
+                key={`${part}-${index}`}
+                className={
+                  part === "Flutter and Raact"
+                    ? "text-cyan-400 font-semibold"
+                    : "text-emerald-400 font-semibold"
+                }
+              >
+                {part}
+              </span>
+            ) : part,
+          )}
         </p>
 
         <div className="flex flex-wrap justify-center gap-4 text-slate-300">
@@ -61,43 +63,41 @@ const Hero = ({ scrollToSection }) => {
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 pt-4">
-          <button
-            onClick={() => scrollToSection("projects")}
-            className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:scale-105 transition-all duration-300 shadow-lg shadow-cyan-500/20"
-          >
-            View Projects
-          </button>
-          <button
-            onClick={() => scrollToSection("contact")}
-            className="px-8 py-4 bg-slate-800/50 text-slate-200 font-semibold rounded-lg hover:bg-slate-700/50 transition-all duration-300 border border-slate-700/50"
-          >
-            Get In Touch
-          </button>
+          {actions.map((action, index) => (
+            <button
+              key={action.id || action.content_key}
+              onClick={() => scrollToSection(action.section_id)}
+              className={`px-8 py-4 font-semibold rounded-lg hover:scale-105 transition-all duration-300 ${
+                index === 0
+                  ? "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white shadow-lg shadow-cyan-500/20"
+                  : "bg-slate-800/50 text-slate-200 border border-slate-700/50 hover:bg-slate-700/50"
+              }`}
+            >
+              {action.label}
+            </button>
+          ))}
         </div>
 
         <div className="flex justify-center gap-6 pt-8">
-          <a
-            href="https://github.com/fayisdotdev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110"
-          >
-            <Github size={28} />
-          </a>
-          <a
-            href="https://linkedin.com/in/fayisdotdev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110"
-          >
-            <Linkedin size={28} />
-          </a>
-          <a
-            href="mailto:muhammadfayiskmofficial@gmail.com"
-            className="text-slate-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110"
-          >
-            <Mail size={28} />
-          </a>
+          {socialLinks.map((item) => {
+            const Icon = socialIcons[item.platform];
+            return (
+              <a
+                key={item.content_key || item.id}
+                href={item.url}
+                target={item.url.startsWith("mailto:") ? undefined : "_blank"}
+                rel={item.url.startsWith("mailto:") ? undefined : "noopener noreferrer"}
+                aria-label={item.label}
+                className="text-slate-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110"
+              >
+                {item.platform === "linktree" ? (
+                  <FontAwesomeIcon icon={faLinktree} size="2x" />
+                ) : Icon ? (
+                  <Icon size={28} />
+                ) : null}
+              </a>
+            );
+          })}
         </div>
 
         <div className="pt-12 animate-bounce">

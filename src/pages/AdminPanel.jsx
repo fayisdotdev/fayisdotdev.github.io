@@ -1,426 +1,231 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CheckCircle, Circle, LogOut, Mail, RefreshCw, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
-import React, { useState, useEffect } from "react";
-import {
-  Mail,
-  Phone,
-  Calendar,
-  CheckCircle,
-  Circle,
-  RefreshCw,
-  Trash2,
-  LogOut,
-  BriefcaseBusiness,
-} from "lucide-react";
 import PortfolioContentEditor from "../components/admin/PortfolioContentEditor";
+import SuperAdminPanel from "../components/admin/SuperAdminPanel";
 
-const AdminPanel = () => {
+const AdminPanel = ({ role }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // all, unread, read
+  const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
-  const [signingOut, setSigningOut] = useState(false);
   const [activeView, setActiveView] = useState("messages");
+  const [signingOut, setSigningOut] = useState(false);
 
-  const handleSignOut = async () => {
+  const loadMessages = useCallback(async () => {
+    const { data, error: loadError } = await supabase
+      .from("contacts")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (loadError) throw loadError;
+    return data || [];
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    loadMessages()
+      .then((data) => {
+        if (active) setMessages(data);
+      })
+      .catch((loadError) => {
+        console.error("Unable to load contact messages.", loadError);
+        if (active) setError(`Failed to load messages: ${loadError.message}`);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [loadMessages]);
+
+  const fetchMessages = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      setMessages(await loadMessages());
+    } catch (loadError) {
+      console.error("Unable to refresh contact messages.", loadError);
+      setError(`Failed to load messages: ${loadError.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const counts = useMemo(() => ({
+    all: messages.length,
+    unread: messages.filter((message) => !message.read).length,
+    read: messages.filter((message) => message.read).length,
+  }), [messages]);
+  const visibleMessages = messages.filter((message) =>
+    filter === "all" || (filter === "read" ? message.read : !message.read),
+  );
+
+  const toggleRead = async (message) => {
+    const { error: updateError } = await supabase
+      .from("contacts")
+      .update({ read: !message.read })
+      .eq("id", message.id);
+    if (updateError) {
+      console.error("Unable to update message status.", updateError);
+      setError(`Could not update message: ${updateError.message}`);
+      return;
+    }
+    setMessages((current) => current.map((item) =>
+      item.id === message.id ? { ...item, read: !message.read } : item,
+    ));
+  };
+
+  const deleteMessage = async (message) => {
+    if (!window.confirm("Delete this message?")) return;
+    const { error: deleteError } = await supabase.from("contacts").delete().eq("id", message.id);
+    if (deleteError) {
+      console.error("Unable to delete contact message.", deleteError);
+      setError(`Could not delete message: ${deleteError.message}`);
+      return;
+    }
+    setMessages((current) => current.filter((item) => item.id !== message.id));
+  };
+
+  const signOut = async () => {
     setSigningOut(true);
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      setError("Failed to sign out. Please try again.");
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) {
+      console.error("Unable to sign out.", signOutError);
+      setError(`Failed to sign out: ${signOutError.message}`);
       setSigningOut(false);
     }
   };
 
-  const fetchMessages = async (showLoading = true) => {
-    if (showLoading) {
-      setLoading(true);
-      setError("");
-    }
-
-    const { data, error } = await supabase
-      .from("contacts")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      setError("Failed to load messages.");
-    } else {
-      setMessages(data);
-    }
-
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("contacts")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          console.error(error);
-          setError("Failed to load messages.");
-        } else {
-          setMessages(data);
-        }
-      } catch (error) {
-        console.error(error);
-        setError("Failed to load messages.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadMessages();
-  }, []);
-
-  const markAsRead = async (id, currentStatus) => {
-    const { data, error } = await supabase
-      .from("contacts")
-      .update({ read: !currentStatus })
-      .eq("id", id)
-      .select(); // 👈 force returning updated row
-
-    console.log("UPDATE RESULT:", data, error);
-
-    if (error) {
-      console.error("Update failed:", error);
-      alert(error.message);
-      return;
-    }
-
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, read: !currentStatus } : m)),
-    );
-  };
-
-  const deleteMessage = async (id) => {
-    if (!window.confirm("Delete this message?")) return;
-
-    const { error } = await supabase.from("contacts").delete().eq("id", id);
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    // 🔥 Remove from UI immediately
-    setMessages((prev) => prev.filter((m) => m.id !== id));
-  };
-
-  const filteredMessages = messages.filter((msg) => {
-    if (filter === "unread") return !msg.read;
-    if (filter === "read") return msg.read;
-    return true;
-  });
-
-  const stats = {
-    total: messages.length,
-    unread: messages.filter((m) => !m.read).length,
-    read: messages.filter((m) => m.read).length,
-  };
+  const tabs = [
+    ["messages", "Messages"],
+    ["portfolio", "Portfolio"],
+    ...(role === "super_admin" ? [["super-admin", "Super admin"]] : []),
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-slate-100">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-black mb-2">
-              <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                {activeView === "messages" ? "Contact Messages" : "Portfolio Content"}
-              </span>
+            <h1 className="text-4xl font-black">
+              {activeView === "messages" ? "Contact Messages" : activeView === "portfolio" ? "Portfolio Content" : "Super admin"}
             </h1>
-            <p className="text-slate-400">
-              {activeView === "messages"
-                ? "Manage your portfolio contact form submissions"
-                : "Manage projects, experience, and skills"}
+            <p className="mt-2 text-slate-400">
+              {role === "super_admin" ? "Signed in as super_admin" : "Signed in as admin"}
             </p>
           </div>
           <button
             type="button"
-            onClick={handleSignOut}
+            onClick={signOut}
             disabled={signingOut}
-            className="flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-slate-300 transition-colors hover:border-red-400/60 hover:text-red-300 disabled:opacity-50"
+            className="flex items-center gap-2 border border-slate-700 px-4 py-2 text-slate-300 hover:border-red-400/60 hover:text-red-300 disabled:opacity-50"
           >
-            <LogOut size={18} />
-            {signingOut ? "Signing out..." : "Sign out"}
+            <LogOut size={18} /> {signingOut ? "Signing out..." : "Sign out"}
           </button>
-        </div>
+        </header>
 
-        <div className="mb-8 flex gap-2 border-b border-slate-800" role="tablist" aria-label="Admin sections">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeView === "messages"}
-            onClick={() => setActiveView("messages")}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-              activeView === "messages"
-                ? "border-cyan-400 text-cyan-300"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Mail size={17} /> Messages
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeView === "portfolio"}
-            onClick={() => setActiveView("portfolio")}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-              activeView === "portfolio"
-                ? "border-cyan-400 text-cyan-300"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <BriefcaseBusiness size={17} /> Portfolio
-          </button>
-        </div>
-
-        {activeView === "portfolio" ? (
-          <PortfolioContentEditor />
-        ) : (
-          <>
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 text-sm mb-1">Total Messages</p>
-                <p className="text-3xl font-bold text-slate-100">
-                  {stats.total}
-                </p>
-              </div>
-              <Mail className="text-cyan-400" size={40} />
-            </div>
-          </div>
-
-          <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 text-sm mb-1">Unread</p>
-                <p className="text-3xl font-bold text-emerald-400">
-                  {stats.unread}
-                </p>
-              </div>
-              <Circle className="text-emerald-400" size={40} />
-            </div>
-          </div>
-
-          <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 text-sm mb-1">Read</p>
-                <p className="text-3xl font-bold text-blue-400">{stats.read}</p>
-              </div>
-              <CheckCircle className="text-blue-400" size={40} />
-            </div>
-          </div>
-        </div>
-
-        {/* Filters and Refresh */}
-        <div className="flex flex-wrap gap-4 mb-6">
-          <div className="flex gap-2">
+        <nav className="flex gap-2 border-b border-slate-800" role="tablist" aria-label="Admin sections">
+          {tabs.map(([id, label]) => (
             <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg transition-all ${
-                filter === "all"
-                  ? "bg-cyan-500 text-white"
-                  : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50"
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={activeView === id}
+              onClick={() => setActiveView(id)}
+              className={`border-b-2 px-4 py-3 text-sm font-medium ${
+                activeView === id
+                  ? "border-cyan-400 text-cyan-300"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              All ({stats.total})
+              {label}
             </button>
+          ))}
+        </nav>
+
+        {error && <p role="alert" className="border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</p>}
+        {activeView === "portfolio" && <PortfolioContentEditor role={role} />}
+        {activeView === "super-admin" && role === "super_admin" && <SuperAdminPanel />}
+        {activeView === "messages" && (
+          <section className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              {["all", "unread", "read"].map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilter(key)}
+                  className={`border p-4 text-left ${
+                    filter === key ? "border-cyan-500 bg-cyan-500/10" : "border-slate-700 bg-slate-800/40"
+                  }`}
+                >
+                  <span className="block text-sm capitalize text-slate-400">{key === "all" ? "Total Messages" : key}</span>
+                  <span className="mt-1 block text-2xl font-bold">{counts[key]}</span>
+                </button>
+              ))}
+            </div>
             <button
-              onClick={() => setFilter("unread")}
-              className={`px-4 py-2 rounded-lg transition-all ${
-                filter === "unread"
-                  ? "bg-emerald-500 text-white"
-                  : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50"
-              }`}
+              type="button"
+              onClick={() => void fetchMessages()}
+              disabled={loading}
+              className="flex items-center gap-2 border border-slate-700 px-4 py-2 text-slate-300 hover:bg-slate-800 disabled:opacity-50"
             >
-              Unread ({stats.unread})
+              <RefreshCw size={17} className={loading ? "animate-spin" : ""} /> Refresh
             </button>
-            <button
-              onClick={() => setFilter("read")}
-              className={`px-4 py-2 rounded-lg transition-all ${
-                filter === "read"
-                  ? "bg-blue-500 text-white"
-                  : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50"
-              }`}
-            >
-              Read ({stats.read})
-            </button>
-          </div>
-
-          <button
-            onClick={fetchMessages}
-            disabled={loading}
-            className="px-4 py-2 bg-slate-800/50 text-slate-300 rounded-lg hover:bg-slate-700/50 transition-all flex items-center gap-2 disabled:opacity-50"
-          >
-            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-            Refresh
-          </button>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 mb-6">
-            {error}
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <RefreshCw
-              size={40}
-              className="animate-spin mx-auto text-cyan-400 mb-4"
-            />
-            <p className="text-slate-400">Loading messages...</p>
-          </div>
-        )}
-
-        {/* Messages List */}
-        {!loading && filteredMessages.length === 0 && (
-          <div className="text-center py-12 bg-slate-800/30 rounded-xl border border-slate-700/50">
-            <Mail size={48} className="mx-auto text-slate-600 mb-4" />
-            <p className="text-slate-400 text-lg">No messages found</p>
-            <p className="text-slate-500 text-sm mt-2">
-              {filter === "unread" && "All messages have been read"}
-              {filter === "read" && "No read messages yet"}
-              {filter === "all" && "No contact form submissions yet"}
-            </p>
-          </div>
-        )}
-
-        {!loading && filteredMessages.length > 0 && (
-          <div className="space-y-4">
-            {filteredMessages.map((message) => (
-              <div
-                key={message.id}
-                className={`bg-slate-800/50 border rounded-xl p-6 transition-all hover:border-cyan-500/50 ${
-                  message.read ? "border-slate-700/50" : "border-emerald-500/30"
-                }`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-slate-100">
-                        {message.name}
-                      </h3>
-                      {!message.read && (
-                        <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full border border-emerald-500/30">
-                          New
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-4 text-sm text-slate-400">
-                      {message.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail size={16} className="text-cyan-400" />
-                          <a
-                            href={`mailto:${message.email}`}
-                            className="hover:text-cyan-400 transition-colors"
-                          >
-                            {message.email}
-                          </a>
-                        </div>
-                      )}
-
-                      {message.phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone size={16} className="text-emerald-400" />
-                          <a
-                            href={`https://wa.me/${message.phone}`}
-                            className="hover:text-emerald-400 transition-colors"
-                          >
-                            {message.phone}
-                          </a>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} className="text-slate-500" />
-                        {new Date(message.created_at).toLocaleString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+            {loading ? (
+              <p className="py-10 text-center text-slate-400">Loading messages...</p>
+            ) : visibleMessages.length === 0 ? (
+              <p className="border border-slate-800 p-8 text-center text-slate-400">No messages found</p>
+            ) : (
+              <div className="space-y-4">
+                {visibleMessages.map((message) => (
+                  <article key={message.id} className="space-y-4 border border-slate-700/70 bg-slate-800/40 p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-xl font-bold">{message.name}</h2>
+                        <p className="mt-1 text-sm text-slate-400">
+                          {message.email} {message.phone && ` · ${message.phone}`}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {new Date(message.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void toggleRead(message)}
+                          title={message.read ? "Mark as unread" : "Mark as read"}
+                          className="rounded-lg bg-slate-700/60 p-2 text-slate-300 hover:text-emerald-300"
+                        >
+                          {message.read ? <Circle size={20} /> : <CheckCircle size={20} />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void deleteMessage(message)}
+                          title="Delete message"
+                          className="rounded-lg bg-red-500/10 p-2 text-red-300 hover:bg-red-500/20"
+                        >
+                          <Trash2 size={20} />
+                        </button>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => markAsRead(message.id, message.read)}
-                      className={`p-2 rounded-lg transition-all ${
-                        message.read
-                          ? "bg-slate-700/50 text-slate-400 hover:bg-slate-600/50"
-                          : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                      }`}
-                      title={message.read ? "Mark as unread" : "Mark as read"}
-                    >
-                      {message.read ? (
-                        <Circle size={20} />
-                      ) : (
-                        <CheckCircle size={20} />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => deleteMessage(message.id)}
-                      className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all"
-                      title="Delete message"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
-                  <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
-                    {message.message}
-                  </p>
-                </div>
-
-                <div className="mt-4 flex gap-2">
-                  {message.email &&
-                    (() => {
-                      const mailtoLink = `mailto:${message.email}?subject=Re: Your message from ${message.name}`;
-                      console.log("Debug: message.email =", message.email);
-                      console.log("Debug: mailtoLink =", mailtoLink);
-                      return (
-                        <a
-                          href={mailtoLink}
-                          className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-all text-sm font-medium"
-                        >
-                          Reply via Email
-                        </a>
-                      );
-                    })()}
-
-                  {message.phone && (
-                    <a
-                      href={`https://wa.me/${message.phone}`}
-                      className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all text-sm font-medium"
-                    >
-                      Text
-                    </a>
-                  )}
-                </div>
+                    <p className="whitespace-pre-wrap rounded-lg border border-slate-700/50 bg-slate-950/50 p-4 text-slate-300">{message.message}</p>
+                    {message.email && (
+                      <a
+                        href={`mailto:${message.email}?subject=${encodeURIComponent(`Re: Your message from ${message.name}`)}`}
+                        className="inline-flex items-center gap-2 text-sm text-cyan-300 hover:text-cyan-200"
+                      >
+                        <Mail size={16} /> Reply via Email
+                      </a>
+                    )}
+                  </article>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-          </>
+            )}
+          </section>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 

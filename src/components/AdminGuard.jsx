@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { cloneElement, useEffect, useState } from "react";
 import { KeyRound, LogIn, LogOut, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -7,6 +7,7 @@ const ADMIN_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 const AdminGuard = ({ children }) => {
   const [session, setSession] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [role, setRole] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -14,12 +15,33 @@ const AdminGuard = ({ children }) => {
 
   useEffect(() => {
     let active = true;
+    const resolveRole = async (nextSession) => {
+      if (!nextSession) {
+        setRole(null);
+        setCheckingSession(false);
+        return;
+      }
+      setCheckingSession(true);
+      const { data, error: roleError } = await supabase.rpc("portfolio_current_role");
+      if (!active) return;
+      if (roleError) {
+        console.error("Unable to look up the signed-in user's portfolio role.", roleError);
+        setError("Unable to verify your administrator role. Confirm the database migrations are installed.");
+        setRole(null);
+      } else {
+        setRole(data);
+      }
+      setCheckingSession(false);
+    };
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (active) {
         setSession(nextSession);
-        setCheckingSession(false);
+        setCheckingSession(true);
+        window.setTimeout(() => {
+          if (active) void resolveRole(nextSession);
+        }, 0);
         if (!nextSession) {
           setEmail("");
           setPassword("");
@@ -32,10 +54,11 @@ const AdminGuard = ({ children }) => {
       if (!active) return;
 
       setSession(data.session);
-      setCheckingSession(false);
-
       if (sessionError) {
         setError("Unable to check your sign-in session. Please reload and try again.");
+        setCheckingSession(false);
+      } else {
+        void resolveRole(data.session);
       }
     });
 
@@ -45,7 +68,7 @@ const AdminGuard = ({ children }) => {
     };
   }, []);
 
-  const isAdmin = session?.user?.app_metadata?.role === "admin";
+  const isAdmin = role === "admin" || role === "super_admin";
 
   useEffect(() => {
     if (!isAdmin) return undefined;
@@ -114,8 +137,9 @@ const AdminGuard = ({ children }) => {
         setEmail("");
         setPassword("");
       }
-    } catch {
+    } catch (signInFailure) {
       setPassword("");
+      console.error("Administrator sign-in request failed.", signInFailure);
       setError("Unable to sign in. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
@@ -130,7 +154,7 @@ const AdminGuard = ({ children }) => {
     );
   }
 
-  if (isAdmin) return children;
+  if (isAdmin) return cloneElement(children, { role });
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 grid place-items-center p-6">
@@ -161,7 +185,6 @@ const AdminGuard = ({ children }) => {
         ) : (
           <form
             onSubmit={handleSignIn}
-            autoComplete="off"
             className="space-y-5"
           >
             <label className="block text-sm text-slate-300">
@@ -170,7 +193,8 @@ const AdminGuard = ({ children }) => {
                 <Mail size={18} className="shrink-0 text-slate-500" />
                 <input
                   type="email"
-                  autoComplete="off"
+                  name="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
@@ -185,7 +209,8 @@ const AdminGuard = ({ children }) => {
                 <KeyRound size={18} className="shrink-0 text-slate-500" />
                 <input
                   type="password"
-                  autoComplete="off"
+                  name="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   required

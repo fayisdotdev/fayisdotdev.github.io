@@ -1,155 +1,165 @@
-import { Brain, Code, Database, Smartphone } from "lucide-react";
-import { experience } from "../data/experience";
-import { projects } from "../data/projects";
-import { skills } from "../data/skills";
+import { portfolioDefaults, portfolioTables } from "../data/portfolioDefaults";
 import { supabase } from "../lib/supabase";
 
-const iconNames = new Map([
-  [Brain, "Brain"],
-  [Code, "Code"],
-  [Database, "Database"],
-  [Smartphone, "Smartphone"],
-]);
+export const getDefaultPortfolioContent = () => ({
+  siteSettings: structuredClone(portfolioDefaults.siteSettings),
+  socialLinks: structuredClone(portfolioDefaults.socialLinks),
+  navigation: structuredClone(portfolioDefaults.navigation),
+  hero: structuredClone(portfolioDefaults.hero),
+  heroActions: structuredClone(portfolioDefaults.heroActions),
+  about: structuredClone(portfolioDefaults.about),
+  aboutCards: structuredClone(portfolioDefaults.aboutCards),
+  aboutStrengths: structuredClone(portfolioDefaults.aboutStrengths),
+  skillCategories: structuredClone(
+    portfolioDefaults.skillCategories.filter((category) => category.category_key !== "__heading__"),
+  ),
+  skills: structuredClone(portfolioDefaults.skills),
+  projects: structuredClone(portfolioDefaults.projects),
+  experience: structuredClone(portfolioDefaults.experience),
+  contact: structuredClone(portfolioDefaults.contact),
+  footer: structuredClone(portfolioDefaults.footer),
+  seo: structuredClone(portfolioDefaults.seo),
+});
 
-const defaultContent = {
-  projects: projects.map(({ icon, ...project }) => ({
-    ...project,
-    icon: iconNames.get(icon) || "Code",
-  })),
-  experience,
-  skills,
-};
-
-export const getDefaultPortfolioContent = () =>
-  JSON.parse(JSON.stringify(defaultContent));
-
-const throwIfError = ({ error }) => {
+const loadTable = async (table, orderColumn) => {
+  let query = supabase.from(table).select("*");
+  if (orderColumn) query = query.order(orderColumn, { ascending: true });
+  const { data, error } = await query;
   if (error) throw error;
+  return data || [];
 };
+
+const fetchAllTables = async () => {
+  const definitions = portfolioTables;
+  const results = await Promise.all(
+    definitions.map(async ({ table, fields }) => [
+      table,
+      await loadTable(table, fields.includes("sort_order") ? "sort_order" : undefined),
+    ]),
+  );
+  return Object.fromEntries(results);
+};
+
+const nestedValues = (children, foreignKey, id) =>
+  children.filter((item) => item[foreignKey] === id);
 
 export const fetchPortfolioContent = async () => {
-  const [stateResult, projectsResult, experienceResult, skillsResult] =
-    await Promise.all([
-      supabase
-        .from("portfolio_content_state")
-        .select("initialized")
-        .eq("id", "main")
-        .maybeSingle(),
-      supabase.from("portfolio_projects").select("*").order("sort_order"),
-      supabase
-        .from("portfolio_experience")
-        .select("*")
-        .order("sort_order"),
-      supabase
-        .from("portfolio_skills")
-        .select("*")
-        .order("category_order")
-        .order("sort_order"),
-    ]);
-
-  [stateResult, projectsResult, experienceResult, skillsResult].forEach(
-    throwIfError,
+  const rows = await fetchAllTables();
+  const databaseInitialized = rows.portfolio_site_settings.some(
+    (item) => item.setting_key === "content_initialized" && item.setting_value === "true",
   );
+  if (!databaseInitialized) return getDefaultPortfolioContent();
 
-  if (!stateResult.data?.initialized) return getDefaultPortfolioContent();
+  const defaults = getDefaultPortfolioContent();
+  const projects = rows.portfolio_projects;
+  const projectTechnologies = rows.portfolio_project_technologies || [];
+  const projectHighlights = rows.portfolio_project_highlights || [];
+  const experience = rows.portfolio_experience;
+  const responsibilities = rows.portfolio_experience_responsibilities || [];
 
-  const groupedSkills = skillsResult.data.reduce((groups, skill) => {
-    groups[skill.category] ??= [];
-    groups[skill.category].push({
-      id: skill.id,
-      name: skill.name,
-      level: skill.level,
+  const resolvedProjects = projects
+    .filter((item) => item.is_published !== false)
+    .map((project) => {
+      const tech = nestedValues(projectTechnologies, "project_id", project.id);
+      const highlights = nestedValues(projectHighlights, "project_id", project.id);
+      return {
+        ...project,
+        tech: tech.map((item) => item.value),
+        highlights: highlights.map((item) => item.value),
+      };
     });
-    return groups;
-  }, {});
 
-  return {
-    projects: projectsResult.data,
-    experience: experienceResult.data,
+  const resolvedExperience = experience
+    .filter((item) => item.is_published !== false)
+    .map((item) => {
+      const items = nestedValues(responsibilities, "experience_id", item.id);
+      return {
+        ...item,
+        responsibilities: items.map((responsibility) => responsibility.value),
+      };
+    });
+
+  const skillRows = rows.portfolio_skills;
+  const skillCategories = rows.portfolio_skill_categories;
+  const visibleSkillCategories = skillCategories.filter(
+    (category) => category.category_key !== "__heading__",
+  );
+  const groupedSkills = Object.fromEntries(
+    visibleSkillCategories
+      .filter((category) => category.is_published !== false)
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((category) => [
+        category.category_key,
+        skillRows
+          .filter((skill) => skill.category === category.category_key && skill.is_published !== false)
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map(({ id, name, level }) => ({ id, name, level })),
+      ]),
+  );
+
+  const published = (tableName) =>
+    (rows[tableName] || []).filter((item) => item.is_published !== false);
+
+  const content = {
+    ...defaults,
+    siteSettings: published("portfolio_site_settings"),
+    socialLinks: published("portfolio_social_links"),
+    navigation: published("portfolio_navigation"),
+    hero: published("portfolio_hero"),
+    heroActions: published("portfolio_hero_actions"),
+    about: published("portfolio_about"),
+    aboutCards: published("portfolio_about_cards"),
+    aboutStrengths: published("portfolio_about_strengths"),
+    skillCategories: visibleSkillCategories.filter((item) => item.is_published !== false),
     skills: groupedSkills,
+    projects: resolvedProjects,
+    experience: resolvedExperience,
+    contact: published("portfolio_contact_settings"),
+    footer: published("portfolio_footer"),
+    seo: published("portfolio_seo"),
   };
+
+  return content;
 };
 
-const syncRows = async (table, rows, toDatabaseRow) => {
-  const { data: existingRows, error: loadError } = await supabase
-    .from(table)
-    .select("id");
-  if (loadError) throw loadError;
+const editableTables = new Set(portfolioTables.map(({ table }) => table));
+const editableColumns = new Map(
+  portfolioTables.map(({ table, fields, parentId }) => [
+    table,
+    new Set([...fields, "content_key", ...(parentId ? [parentId] : [])]),
+  ]),
+);
 
-  const records = rows.map(toDatabaseRow);
-  const existingIds = new Set(existingRows.map((row) => row.id));
-  const recordsWithIds = records.filter((row) => existingIds.has(row.id));
-  const newRecords = records.filter((row) => !existingIds.has(row.id));
-
-  if (recordsWithIds.length > 0) {
-    const { error } = await supabase.from(table).upsert(recordsWithIds);
-    if (error) throw error;
-  }
-
-  if (newRecords.length > 0) {
-    const { error } = await supabase.from(table).insert(newRecords);
-    if (error) throw error;
-  }
-
-  const retainedIds = new Set(
-    recordsWithIds.map((row) => row.id).filter(Boolean),
+export const fetchAdminPortfolioContent = async () => {
+  const rows = await fetchAllTables();
+  rows.portfolio_site_settings = rows.portfolio_site_settings.filter(
+    (item) => item.setting_key !== "content_initialized",
   );
-  const removedIds = [...existingIds].filter((id) => !retainedIds.has(id));
-
-  if (removedIds.length > 0) {
-    const { error } = await supabase.from(table).delete().in("id", removedIds);
-    if (error) throw error;
-  }
+  const parentTables = Object.fromEntries(
+    portfolioTables
+      .filter(({ parentTable }) => parentTable)
+      .map(({ parentTable }) => [parentTable, rows[parentTable]]),
+  );
+  return { rows, parentTables };
 };
 
-export const savePortfolioContent = async (content) => {
-  await syncRows("portfolio_projects", content.projects, (project, index) => ({
-    ...(project.id ? { id: project.id } : {}),
-    title: project.title || "",
-    role: project.role || "",
-    period: project.period || "",
-    description: project.description || "",
-    tech: project.tech || [],
-    highlights: project.highlights || [],
-    link: project.link || "",
-    icon: project.icon || "Code",
-    sort_order: index,
-  }));
-
-  await syncRows(
-    "portfolio_experience",
-    content.experience,
-    (item, index) => ({
-      ...(item.id ? { id: item.id } : {}),
-      title: item.title || "",
-      company: item.company || "",
-      location: item.location || "",
-      period: item.period || "",
-      responsibilities: item.responsibilities || [],
-      link: item.link || "",
-      sort_order: index,
-    }),
-  );
-
-  const skills = Object.entries(content.skills).flatMap(
-    ([category, items], categoryIndex) =>
-      items.map((skill, index) => ({
-        ...(skill.id ? { id: skill.id } : {}),
-        category,
-        category_order: categoryIndex,
-        name: skill.name || "",
-        level: skill.level,
-        sort_order: index,
-      })),
-  );
-  await syncRows("portfolio_skills", skills, (skill) => skill);
-
-  const { error } = await supabase
-    .from("portfolio_content_state")
-    .update({ initialized: true, updated_at: new Date().toISOString() })
-    .eq("id", "main");
-
+export const updatePortfolioField = async (table, id, field, value) => {
+  if (!editableTables.has(table) || !editableColumns.get(table)?.has(field)) {
+    throw new Error(`Field ${field} cannot be edited in ${table}.`);
+  }
+  const { error } = await supabase.from(table).update({ [field]: value }).eq("id", id);
   if (error) throw error;
+};
 
-  return fetchPortfolioContent();
+export const createPortfolioRow = async (table, row) => {
+  if (!editableTables.has(table)) throw new Error(`Table ${table} cannot be edited.`);
+  const { data, error } = await supabase.from(table).insert(row).select().single();
+  if (error) throw error;
+  return data;
+};
+
+export const deletePortfolioRow = async (table, id) => {
+  if (!editableTables.has(table)) throw new Error(`Table ${table} cannot be edited.`);
+  const { error } = await supabase.from(table).delete().eq("id", id);
+  if (error) throw error;
 };

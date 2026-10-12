@@ -1,12 +1,12 @@
 import { ExternalLink } from "lucide-react";
 
-const Experience = ({ experience }) => {
+const Experience = ({ experience, heading }) => {
   return (
     <section id="experience" className="relative py-32 px-6 bg-slate-900/50">
       <div className="max-w-5xl mx-auto relative z-10">
         <h2 className="text-5xl font-black mb-16 text-center">
           <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-            Experience
+            {heading}
           </span>
         </h2>
 

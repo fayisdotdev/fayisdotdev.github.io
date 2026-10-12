@@ -7,6 +7,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Portfolio />} />
+      <Route
+        path="/super-admin"
+        element={
+          <AdminGuard>
+            <AdminPanel />
+          </AdminGuard>
+        }
+      />
 
       <Route
         path="/admin"
