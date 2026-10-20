@@ -43,6 +43,9 @@ const tableInfo = {
   portfolio_footer: "Copyright",
 };
 
+const mainFeatures = ["About", "Skills", "Projects", "Experience"];
+const additionalFeatures = ["Site settings", "Navigation", "Hero", "Contact", "Footer"];
+
 const fieldLabels = {
   setting_value: "Text",
   field_value: "Text",
@@ -131,21 +134,32 @@ const getNewRow = (table, rows) => {
   }
 };
 
+const readEditorState = (scope, defaultFeature) => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(`portfolio-admin-editor:${scope}`) || "{}");
+    return {
+      activeFeature: typeof saved.activeFeature === "string" ? saved.activeFeature : defaultFeature,
+      search: typeof saved.search === "string" ? saved.search : "",
+    };
+  } catch (storageError) {
+    console.warn("Unable to restore the portfolio editor state.", storageError);
+    return { activeFeature: defaultFeature, search: "" };
+  }
+};
+
 const PortfolioContentEditor = ({ scope = "main" }) => {
   const [rows, setRows] = useState({});
   const [parentRows, setParentRows] = useState({});
-  const mainFeatures = ["About", "Skills", "Projects", "Experience"];
-  const additionalFeatures = ["Site settings", "Navigation", "Hero", "Contact", "Footer"];
   const visibleFeatures = scope === "additional" ? additionalFeatures : mainFeatures;
   const scopedTables = portfolioTables.filter((item) => visibleFeatures.includes(item.feature));
-  const [activeFeature, setActiveFeature] = useState(
-    scope === "additional" ? "Site settings" : "Projects",
-  );
+  const defaultFeature = scope === "additional" ? "Site settings" : "Projects";
+  const [editorState] = useState(() => readEditorState(scope, defaultFeature));
+  const [activeFeature, setActiveFeature] = useState(editorState.activeFeature);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(editorState.search);
 
   const load = async () => {
     const result = await fetchAdminPortfolioContent();
@@ -173,7 +187,22 @@ const PortfolioContentEditor = ({ scope = "main" }) => {
     };
   }, []);
 
-  const features = [...new Set(scopedTables.map((item) => item.feature))];
+  const features = scope === "additional" ? additionalFeatures : mainFeatures;
+  useEffect(() => {
+    if (!features.includes(activeFeature)) {
+      setActiveFeature(defaultFeature);
+      return;
+    }
+    try {
+      sessionStorage.setItem(
+        `portfolio-admin-editor:${scope}`,
+        JSON.stringify({ activeFeature, search }),
+      );
+    } catch (storageError) {
+      console.warn("Unable to save the portfolio editor state.", storageError);
+    }
+  }, [activeFeature, defaultFeature, features, scope, search]);
+
   const currentTables = scopedTables.filter((item) => {
     if (item.feature !== activeFeature) return false;
     if (activeFeature === "Projects" && item.parentTable === "portfolio_projects") return false;

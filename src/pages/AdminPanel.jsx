@@ -4,12 +4,31 @@ import { supabase } from "../lib/supabase";
 import PortfolioContentEditor from "../components/admin/PortfolioContentEditor";
 import SuperAdminPanel from "../components/admin/SuperAdminPanel";
 
+const validViews = new Set(["messages", "portfolio", "super-admin"]);
+const validFilters = new Set(["all", "unread", "read"]);
+
+const readDashboardState = (role) => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(`portfolio-admin-dashboard:${role}`) || "{}");
+    return {
+      activeView: validViews.has(saved.activeView) && (saved.activeView !== "super-admin" || role === "super_admin")
+        ? saved.activeView
+        : "messages",
+      filter: validFilters.has(saved.filter) ? saved.filter : "all",
+    };
+  } catch (storageError) {
+    console.warn("Unable to restore the admin dashboard state.", storageError);
+    return { activeView: "messages", filter: "all" };
+  }
+};
+
 const AdminPanel = ({ role }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
+  const [dashboardState] = useState(() => readDashboardState(role));
+  const [filter, setFilter] = useState(dashboardState.filter);
   const [error, setError] = useState("");
-  const [activeView, setActiveView] = useState("messages");
+  const [activeView, setActiveView] = useState(dashboardState.activeView);
   const [signingOut, setSigningOut] = useState(false);
 
   const loadMessages = useCallback(async () => {
@@ -105,6 +124,58 @@ const AdminPanel = ({ role }) => {
       : []),
   ];
   const activeTab = tabs.find((tab) => tab.id === activeView);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        `portfolio-admin-dashboard:${role}`,
+        JSON.stringify({ activeView, filter }),
+      );
+    } catch (storageError) {
+      console.warn("Unable to save the admin dashboard state.", storageError);
+    }
+  }, [activeView, filter, role]);
+
+  useEffect(() => {
+    let restoreTimer;
+    let restoreAttempts = 0;
+    try {
+      const savedScroll = Number(sessionStorage.getItem(`portfolio-admin-scroll:${role}`));
+      if (Number.isFinite(savedScroll) && savedScroll > 0) {
+        restoreTimer = window.setInterval(() => {
+          window.scrollTo({ top: savedScroll, behavior: "auto" });
+          restoreAttempts += 1;
+          if (window.scrollY >= savedScroll - 2 || restoreAttempts >= 10) {
+            window.clearInterval(restoreTimer);
+          }
+        }, 200);
+      }
+    } catch (storageError) {
+      console.warn("Unable to restore the admin scroll position.", storageError);
+    }
+    let saveTimer;
+    const saveScroll = () => {
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(() => {
+        try {
+          sessionStorage.setItem(`portfolio-admin-scroll:${role}`, String(window.scrollY));
+        } catch (storageError) {
+          console.warn("Unable to save the admin scroll position.", storageError);
+        }
+      }, 100);
+    };
+    window.addEventListener("scroll", saveScroll, { passive: true });
+    return () => {
+      window.clearInterval(restoreTimer);
+      window.clearTimeout(saveTimer);
+      window.removeEventListener("scroll", saveScroll);
+      try {
+        sessionStorage.setItem(`portfolio-admin-scroll:${role}`, String(window.scrollY));
+      } catch (storageError) {
+        console.warn("Unable to save the admin scroll position.", storageError);
+      }
+    };
+  }, [role]);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">

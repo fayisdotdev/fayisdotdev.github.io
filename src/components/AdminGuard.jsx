@@ -1,5 +1,5 @@
 import { cloneElement, useEffect, useState } from "react";
-import { KeyRound, LogIn, LogOut, Mail } from "lucide-react";
+import { Eye, EyeOff, KeyRound, LogIn, LogOut, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 const ADMIN_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
@@ -10,6 +10,7 @@ const AdminGuard = ({ children }) => {
   const [role, setRole] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,18 +36,21 @@ const AdminGuard = ({ children }) => {
     };
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (active) {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!active) return;
+      if (event === "TOKEN_REFRESHED") {
         setSession(nextSession);
-        setCheckingSession(true);
-        window.setTimeout(() => {
-          if (active) void resolveRole(nextSession);
-        }, 0);
-        if (!nextSession) {
-          setEmail("");
-          setPassword("");
-          setError("");
-        }
+        return;
+      }
+      setSession(nextSession);
+      setCheckingSession(true);
+      window.setTimeout(() => {
+        if (active) void resolveRole(nextSession);
+      }, 0);
+      if (!nextSession) {
+        setEmail("");
+        setPassword("");
+        setError("");
       }
     });
 
@@ -208,7 +212,7 @@ const AdminGuard = ({ children }) => {
               <span className="mt-2 flex items-center gap-3 border border-slate-700 bg-slate-950/70 px-3 focus-within:border-cyan-500">
                 <KeyRound size={18} className="shrink-0 text-slate-500" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   autoComplete="current-password"
                   value={password}
@@ -216,6 +220,15 @@ const AdminGuard = ({ children }) => {
                   required
                   className="min-w-0 flex-1 bg-transparent py-3 text-slate-100 outline-none"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  className="shrink-0 py-2 text-slate-400 hover:text-cyan-300"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </span>
             </label>
 
