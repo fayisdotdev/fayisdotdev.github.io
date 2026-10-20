@@ -1,0 +1,7 @@
+git add .
+git commit -m "totally web based portfolio - super admin - didnt hosted yet"
+git push origin totally-web
+
+npm run build
+npm run deploy
+
