@@ -182,7 +182,7 @@ const PasswordRecovery = () => {
               {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
               {emailSent && (
                 <p role="status" className="text-sm text-emerald-300">
-                  If that address belongs to an account, a recovery link has been sent.
+                  If an admin account exists for that email, a recovery link has been sent.
                 </p>
               )}
               <button
