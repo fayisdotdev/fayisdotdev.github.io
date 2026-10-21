@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, KeyRound, Mail } from "lucide-react";
 import { PORTFOLIO_SITE_URL, supabase } from "../lib/supabase";
+import Background from "./layout/Background";
 
 const isPasswordRequestUrl = () => window.location.hash.slice(1) === "admin-forgott";
 const isRecoveryCallbackUrl = () =>
@@ -92,19 +93,20 @@ const PasswordRecovery = () => {
   if (!isRecovery && !isRequestingRecovery) return null;
 
   return (
-    <main className="fixed inset-0 z-[100] grid place-items-center bg-slate-950 p-5 text-slate-100">
-      <section className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl sm:p-8">
-        <div className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-cyan-500/10 text-cyan-300">
+    <main className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-[#0a0b0e] p-5 text-slate-100">
+      <Background />
+      <section className="relative z-10 w-full max-w-md border border-slate-800/80 bg-slate-950/90 p-6 shadow-2xl backdrop-blur sm:p-8">
+        <div className="mb-5 grid h-11 w-11 place-items-center rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
           {isRecovery ? <KeyRound size={22} /> : <Mail size={22} />}
         </div>
         {isRecovery ? (
           <>
-            <h1 className="text-2xl font-bold">Set a new password</h1>
+            <h1 className="font-mono text-2xl font-bold">Set a new password</h1>
             <p className="mt-2 text-sm text-slate-400">Choose a new password for your admin account.</p>
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <label className="block text-sm text-slate-300">
                 New password
-                <span className="mt-1 flex items-center rounded-lg border border-slate-700 bg-slate-950 focus-within:border-cyan-500">
+                <span className="mt-1 flex items-center border border-slate-700 bg-slate-950 focus-within:border-emerald-500">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="new-password"
@@ -120,7 +122,7 @@ const PasswordRecovery = () => {
                     onClick={() => setShowPassword((visible) => !visible)}
                     aria-label={showPassword ? "Hide new password" : "Show new password"}
                     aria-pressed={showPassword}
-                    className="px-3 py-2 text-slate-400 hover:text-cyan-300"
+                    className="px-3 py-2 text-slate-400 hover:text-emerald-300"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -128,7 +130,7 @@ const PasswordRecovery = () => {
               </label>
               <label className="block text-sm text-slate-300">
                 Confirm new password
-                <span className="mt-1 flex items-center rounded-lg border border-slate-700 bg-slate-950 focus-within:border-cyan-500">
+                <span className="mt-1 flex items-center border border-slate-700 bg-slate-950 focus-within:border-emerald-500">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     name="confirm-new-password"
@@ -144,7 +146,7 @@ const PasswordRecovery = () => {
                     onClick={() => setShowConfirmPassword((visible) => !visible)}
                     aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
                     aria-pressed={showConfirmPassword}
-                    className="px-3 py-2 text-slate-400 hover:text-cyan-300"
+                    className="px-3 py-2 text-slate-400 hover:text-emerald-300"
                   >
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -154,7 +156,7 @@ const PasswordRecovery = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-lg bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-60"
+                className="w-full rounded bg-emerald-500 px-4 py-3 font-mono text-sm font-bold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
               >
                 {submitting ? "Updating password..." : "Update password"}
               </button>
@@ -162,7 +164,7 @@ const PasswordRecovery = () => {
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold">Reset admin password</h1>
+            <h1 className="font-mono text-2xl font-bold">Reset admin password</h1>
             <p className="mt-2 text-sm text-slate-400">
               Enter your administrator email and we’ll send a secure recovery link.
             </p>
@@ -176,7 +178,7 @@ const PasswordRecovery = () => {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
-                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-slate-100 outline-none focus:border-cyan-500"
+                  className="mt-1 w-full border border-slate-700 bg-slate-950 px-3 py-3 text-slate-100 outline-none focus:border-emerald-500"
                 />
               </label>
               {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
@@ -188,7 +190,7 @@ const PasswordRecovery = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-lg bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-60"
+                className="w-full rounded bg-emerald-500 px-4 py-3 font-mono text-sm font-bold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
               >
                 {submitting ? "Sending..." : "Send recovery link"}
               </button>
@@ -199,7 +201,7 @@ const PasswordRecovery = () => {
                   setError("");
                   void navigate("/admin");
                 }}
-                className="flex w-full items-center justify-center gap-2 py-2 text-sm text-slate-400 transition-colors hover:text-cyan-300"
+                className="flex w-full items-center justify-center gap-2 py-2 font-mono text-xs text-slate-400 transition-colors hover:text-emerald-300"
               >
                 <ArrowLeft size={16} />
                 Back to admin sign in

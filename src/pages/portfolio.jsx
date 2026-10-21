@@ -29,7 +29,6 @@ const sections = [
 ];
 
 const Portfolio = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [portfolioContent, setPortfolioContent] = useState(
     getDefaultPortfolioContent,
   );
@@ -108,12 +107,11 @@ const Portfolio = () => {
   }, [portfolioContent]);
 
   const scrollToSection = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setIsMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="portfolio-page min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+    <div className="portfolio-page relative min-h-screen overflow-x-hidden bg-[#0a0b0e] font-sans text-slate-100 selection:bg-emerald-500 selection:text-slate-950">
 
       <Background />
 {/* curser trail */}
@@ -122,8 +120,6 @@ const Portfolio = () => {
       <Navbar
         active={activeSection}
         onScrollTo={scrollToSection}
-        isOpen={isMenuOpen}
-        setIsOpen={setIsMenuOpen}
         brandName={siteSettings.brand_name}
         items={portfolioContent.navigation.map((item) => ({
           id: item.section_id,
@@ -131,31 +127,33 @@ const Portfolio = () => {
         }))}
       />
 
-      <Hero
-        scrollToSection={scrollToSection}
-        content={portfolioContent.hero}
-        actions={portfolioContent.heroActions}
-        socialLinks={portfolioContent.socialLinks.filter((item) => item.placement.split(",").includes("hero"))}
-      />
-      <About
-        content={portfolioContent.about}
-        cards={portfolioContent.aboutCards}
-        strengths={portfolioContent.aboutStrengths}
-      />
-      <Skills
-        skills={portfolioContent.skills}
-        categories={portfolioContent.skillCategories}
-        heading={siteSettings.skills_heading}
-      />
-      <Projects
-        projects={portfolioContent.projects}
-        heading={siteSettings.projects_heading}
-      />
-      <Experience
-        experience={portfolioContent.experience}
-        heading={siteSettings.experience_heading}
-      />
-      <Contact content={portfolioContent.contact} />
+      <main className="relative z-10">
+        <Hero
+          scrollToSection={scrollToSection}
+          content={portfolioContent.hero}
+          actions={portfolioContent.heroActions}
+          socialLinks={portfolioContent.socialLinks.filter((item) => item.placement.split(",").includes("hero"))}
+        />
+        <About
+          content={portfolioContent.about}
+          cards={portfolioContent.aboutCards}
+          strengths={portfolioContent.aboutStrengths}
+        />
+        <Skills
+          skills={portfolioContent.skills}
+          categories={portfolioContent.skillCategories}
+          heading={siteSettings.skills_heading}
+        />
+        <Projects
+          projects={portfolioContent.projects}
+          heading={siteSettings.projects_heading}
+        />
+        <Experience
+          experience={portfolioContent.experience}
+          heading={siteSettings.experience_heading}
+        />
+        <Contact content={portfolioContent.contact} />
+      </main>
       <Footer
         links={portfolioContent.socialLinks.filter((item) => item.placement.split(",").includes("footer"))}
         content={portfolioContent.footer}

@@ -3,6 +3,7 @@ import { CheckCircle, Circle, ExternalLink, FilePenLine, Inbox, LogOut, Mail, Re
 import { supabase } from "../lib/supabase";
 import PortfolioContentEditor from "../components/admin/PortfolioContentEditor";
 import SuperAdminPanel from "../components/admin/SuperAdminPanel";
+import Background from "../components/layout/Background";
 
 const validViews = new Set(["messages", "portfolio", "super-admin"]);
 const validFilters = new Set(["all", "unread", "read"]);
@@ -178,37 +179,38 @@ const AdminPanel = ({ role }) => {
   }, [role]);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-5 sm:px-6 sm:py-8">
-        <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 sm:p-5">
+    <main className="relative min-h-screen overflow-hidden bg-[#0a0b0e] text-slate-100">
+      <Background />
+      <div className="relative z-10 mx-auto max-w-6xl space-y-6 px-4 py-5 sm:px-6 sm:py-8">
+        <header className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-800/80 bg-slate-950/80 p-4 backdrop-blur sm:p-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Portfolio dashboard</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{activeTab?.label}</h1>
+            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">Portfolio // Admin console</p>
+            <h1 className="mt-1 font-mono text-2xl font-bold tracking-tight sm:text-3xl">{activeTab?.label}</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <a
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-cyan-400 hover:text-cyan-200"
+              className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 font-mono text-xs text-slate-300 transition hover:border-emerald-400 hover:text-emerald-200"
             >
               <ExternalLink size={17} /> View live site
             </a>
-            <span className="rounded-full border border-slate-700 px-3 py-1.5 text-xs text-slate-400">
+            <span className="rounded border border-slate-700 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-slate-400">
               {role === "super_admin" ? "Super admin" : "Admin"}
             </span>
             <button
               type="button"
               onClick={signOut}
               disabled={signingOut}
-              className="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-red-400/60 hover:text-red-300 disabled:opacity-50"
+              className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 font-mono text-xs text-slate-300 transition hover:border-red-400/60 hover:text-red-300 disabled:opacity-50"
             >
               <LogOut size={18} /> {signingOut ? "Signing out..." : "Sign out"}
             </button>
           </div>
         </header>
 
-        <nav className="flex gap-2 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Admin sections">
+        <nav className="flex gap-2 overflow-x-auto rounded-lg border border-slate-800/80 bg-slate-950/70 p-2" aria-label="Admin sections">
           {tabs.map(({ id, label, icon }) => (
             <button
               key={id}
@@ -217,7 +219,7 @@ const AdminPanel = ({ role }) => {
               onClick={() => setActiveView(id)}
               className={`flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors sm:px-4 ${
                 activeView === id
-                  ? "border-cyan-400/50 bg-cyan-500/10 text-cyan-200"
+                  ? "border-emerald-400/50 bg-emerald-500/10 text-emerald-200"
                   : "border-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-200"
               }`}
             >
@@ -239,7 +241,7 @@ const AdminPanel = ({ role }) => {
                   type="button"
                   onClick={() => setFilter(key)}
                   className={`rounded-xl border p-4 text-left transition ${
-                    filter === key ? "border-cyan-500/60 bg-cyan-500/10" : "border-slate-800 bg-slate-900/50 hover:border-slate-700"
+                    filter === key ? "border-emerald-500/60 bg-emerald-500/10" : "border-slate-800 bg-slate-900/50 hover:border-slate-700"
                   }`}
                 >
                   <span className="block text-xs font-medium uppercase tracking-wider text-slate-500">{key === "all" ? "Total messages" : key}</span>
@@ -253,7 +255,7 @@ const AdminPanel = ({ role }) => {
                 type="button"
                 onClick={() => void fetchMessages()}
                 disabled={loading}
-                className="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
+                className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 font-mono text-xs text-slate-300 transition hover:border-emerald-500/40 hover:bg-slate-800 disabled:opacity-50"
               >
                 <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh
               </button>
@@ -265,8 +267,8 @@ const AdminPanel = ({ role }) => {
             ) : (
               <div className="space-y-4">
                 {visibleMessages.map((message) => (
-                  <article key={message.id} className={`space-y-4 rounded-xl border p-4 sm:p-5 ${
-                    message.read ? "border-slate-800 bg-slate-900/40" : "border-cyan-900/70 bg-slate-900/80"
+                  <article key={message.id} className={`space-y-4 rounded-lg border p-4 sm:p-5 ${
+                    message.read ? "border-slate-800 bg-slate-900/40" : "border-emerald-900/70 bg-slate-900/80"
                   }`}>
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div>
@@ -301,7 +303,7 @@ const AdminPanel = ({ role }) => {
                     {message.email && (
                       <a
                         href={`mailto:${message.email}?subject=${encodeURIComponent(`Re: Your message from ${message.name}`)}`}
-                        className="inline-flex items-center gap-2 text-sm text-cyan-300 hover:text-cyan-200"
+                        className="inline-flex items-center gap-2 text-sm text-emerald-300 hover:text-emerald-200"
                       >
                         <Mail size={16} /> Reply via Email
                       </a>

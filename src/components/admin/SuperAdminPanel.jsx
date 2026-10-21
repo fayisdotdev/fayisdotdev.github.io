@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import PortfolioContentEditor from "./PortfolioContentEditor";
 
 const fieldClass =
-  "rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-slate-100 outline-none focus:border-cyan-500";
+  "rounded border border-slate-700/80 bg-slate-950 px-3 py-2.5 text-slate-100 outline-none focus:border-emerald-500";
 
 const SuperAdminPanel = () => {
   const [admins, setAdmins] = useState([]);
@@ -139,7 +139,7 @@ const SuperAdminPanel = () => {
             onClick={() => setActiveTab(id)}
             className={`flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${
               activeTab === id
-                ? "border-cyan-400/50 bg-cyan-500/10 text-cyan-200"
+                ? "border-emerald-400/50 bg-emerald-500/10 text-emerald-200"
                 : "border-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-200"
             }`}
           >
@@ -165,7 +165,7 @@ const SuperAdminPanel = () => {
             <button
               type="button"
               onClick={() => setShowAddAdmin((visible) => !visible)}
-              className="rounded-lg border border-cyan-500/50 px-4 py-2.5 text-sm font-medium text-cyan-300 transition hover:bg-cyan-500/10"
+              className="rounded border border-emerald-500/50 px-4 py-2.5 font-mono text-xs font-medium text-emerald-300 transition hover:bg-emerald-500/10"
             >
               {showAddAdmin ? "Cancel" : "Add administrator"}
             </button>
@@ -208,7 +208,7 @@ const SuperAdminPanel = () => {
                     </select>
                   </label>
                   <div className="flex items-end">
-                    <button className="w-full rounded-lg bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400" type="submit">
+                    <button className="w-full rounded bg-emerald-500 px-4 py-2.5 font-mono text-xs font-bold text-slate-950 transition hover:bg-emerald-400" type="submit">
                       Add administrator
                     </button>
                   </div>

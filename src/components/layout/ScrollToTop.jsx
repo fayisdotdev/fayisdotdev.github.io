@@ -27,7 +27,7 @@ const ScrollToTop = ({ label }) => {
       aria-label={label}
       aria-hidden={!isVisible}
       tabIndex={isVisible ? 0 : -1}
-      className={`group fixed bottom-6 right-6 z-[60] inline-flex size-11 items-center justify-center rounded-full border border-cyan-400/30 bg-slate-800/80 text-cyan-300 shadow-lg shadow-slate-950/30 transition-all duration-300 hover:border-emerald-400/60 hover:bg-cyan-400/10 hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none ${
+      className={`group fixed bottom-6 right-6 z-[60] inline-flex size-11 items-center justify-center rounded border border-emerald-400/30 bg-slate-900/90 text-emerald-300 shadow-lg shadow-slate-950/30 transition-all duration-300 hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none ${
         isVisible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0"

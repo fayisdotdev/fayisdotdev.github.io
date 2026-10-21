@@ -14,8 +14,8 @@ const Footer = ({ links, content }) => {
     content.map(({ setting_key, setting_value }) => [setting_key, setting_value]),
   );
   return (
-    <footer className="relative py-12 px-6 border-t border-slate-800/50">
-      <div className="max-w-7xl mx-auto text-center space-y-6">
+    <footer className="relative z-10 border-t border-slate-800/80 px-6 py-10">
+      <div className="mx-auto max-w-7xl space-y-6 text-center">
         <div className="flex justify-center gap-6">
           {links.map((link) => {
             const Icon = icons[link.platform];
@@ -26,7 +26,7 @@ const Footer = ({ links, content }) => {
                 target={link.url.startsWith("mailto:") ? undefined : "_blank"}
                 rel={link.url.startsWith("mailto:") ? undefined : "noopener noreferrer"}
                 aria-label={link.label}
-                className="text-slate-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110"
+                className="text-slate-500 transition-colors hover:text-emerald-400"
               >
                 {link.platform === "linktree" ? (
                   <FontAwesomeIcon icon={faLinktree} className="text-xl" />
@@ -37,7 +37,7 @@ const Footer = ({ links, content }) => {
             );
           })}
         </div>
-        <p className="text-slate-500 text-sm">
+        <p className="font-mono text-xs text-slate-600">
           {settings.copyright_prefix}{new Date().getFullYear()}{settings.copyright_owner}
         </p>
       </div>

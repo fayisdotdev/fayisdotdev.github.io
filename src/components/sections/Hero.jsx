@@ -19,22 +19,22 @@ const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center px-6 pt-20"
+      className="relative flex min-h-screen scroll-mt-28 items-center justify-center px-6 pb-12 pt-28"
     >
-      <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
+      <div className="relative z-10 mx-auto max-w-5xl space-y-8 border-l-2 border-slate-800/80 py-4 pl-6 text-left sm:pl-10">
         <div className="space-y-4 animate-fadeIn">
-          <p className="text-cyan-400 text-lg font-medium tracking-wide">
+          <p className="font-mono text-sm font-bold uppercase tracking-widest text-emerald-400">
             {fields.greeting}
           </p>
-          <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-blue-400 bg-clip-text text-transparent leading-tight">
+          <h1 className="break-words font-mono text-4xl font-black uppercase leading-tight tracking-tighter text-slate-100 sm:text-6xl md:text-7xl">
             {fields.name}
           </h1>
-          <p className="text-2xl md:text-3xl text-slate-300 font-light">
+          <p className="font-mono text-lg font-bold tracking-tight text-emerald-400 md:text-2xl">
             {fields.role}
           </p>
         </div>
 
-        <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+        <p className="max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">
           {highlightedTagline.map((part, index) =>
             ["Flutter and Raact", "Power BI", "Python", "ML"].includes(part) ? (
               <span
@@ -51,7 +51,7 @@ const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
           )}
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 text-slate-300">
+        <div className="flex flex-wrap gap-4 text-slate-300">
           {/* <div className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50"> */}
             {/* <MapPin size={18} className="text-cyan-400" /> */}
             {/* <span>Dubai, UAE</span> */}
@@ -62,15 +62,15 @@ const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
           {/* </div> */}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 pt-4">
+        <div className="flex flex-wrap gap-3 pt-4">
           {actions.map((action, index) => (
             <button
               key={action.id || action.content_key}
               onClick={() => scrollToSection(action.section_id)}
-              className={`px-8 py-4 font-semibold rounded-lg hover:scale-105 transition-all duration-300 ${
+              className={`flex items-center gap-2 rounded px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                 index === 0
-                  ? "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white shadow-lg shadow-cyan-500/20"
-                  : "bg-slate-800/50 text-slate-200 border border-slate-700/50 hover:bg-slate-700/50"
+                  ? "bg-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:bg-emerald-400"
+                  : "border border-slate-800 bg-slate-900/80 text-slate-300 hover:border-emerald-500/50 hover:text-slate-100"
               }`}
             >
               {action.label}
@@ -78,7 +78,7 @@ const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
           ))}
         </div>
 
-        <div className="flex justify-center gap-6 pt-8">
+        <div className="flex gap-5 pt-4">
           {socialLinks.map((item) => {
             const Icon = socialIcons[item.platform];
             return (
@@ -88,7 +88,7 @@ const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
                 target={item.url.startsWith("mailto:") ? undefined : "_blank"}
                 rel={item.url.startsWith("mailto:") ? undefined : "noopener noreferrer"}
                 aria-label={item.label}
-                className="text-slate-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110"
+                className="text-slate-500 transition-colors hover:text-emerald-400"
               >
                 {item.platform === "linktree" ? (
                   <FontAwesomeIcon icon={faLinktree} size="2x" />
@@ -100,8 +100,8 @@ const Hero = ({ scrollToSection, content, actions, socialLinks }) => {
           })}
         </div>
 
-        <div className="pt-12 animate-bounce">
-          <ChevronDown size={32} className="mx-auto text-cyan-400/50" />
+        <div className="pt-4">
+          <ChevronDown size={24} className="text-emerald-500/50" />
         </div>
       </div>
     </section>

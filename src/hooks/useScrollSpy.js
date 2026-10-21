@@ -5,17 +5,29 @@ export const useScrollSpy = (sections = []) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const current = sections.find((section) => {
+      const navigationBottom =
+        document.querySelector("nav[aria-label='Main navigation']")?.getBoundingClientRect().bottom || 0;
+      const activationLine = Math.max(140, navigationBottom + 32);
+      let current = sections[0];
+
+      for (const section of sections) {
         const el = document.getElementById(section);
-        if (!el) return false;
+        if (!el) continue;
         const rect = el.getBoundingClientRect();
-        return rect.top <= 100 && rect.bottom >= 100;
-      });
+        if (rect.top > activationLine) break;
+        current = section;
+      }
+
       if (current) setActive(current);
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, [sections]);
 
   return active;

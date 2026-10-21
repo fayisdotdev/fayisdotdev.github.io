@@ -9,7 +9,7 @@ import {
 } from "../../services/portfolioContentService";
 
 const inputClassName =
-  "mt-1 w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2.5 text-slate-100 outline-none transition focus:border-cyan-500";
+  "mt-1 w-full rounded border border-slate-700/80 bg-slate-950/80 px-3 py-2.5 text-slate-100 outline-none transition focus:border-emerald-500";
 
 const featureInfo = {
   "Site settings": "Site & links",
@@ -322,7 +322,7 @@ const PortfolioContentEditor = ({ scope = "main" }) => {
                 <button
                   type="button"
                   onClick={() => addRelatedRow(definition, parentRow)}
-                  className="rounded border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-cyan-500 hover:text-cyan-300"
+                  className="rounded border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-emerald-500 hover:text-emerald-300"
                 >
                   + Add
                 </button>
@@ -409,7 +409,7 @@ const PortfolioContentEditor = ({ scope = "main" }) => {
                 aria-current={activeFeature === feature ? "page" : undefined}
                 className={`flex shrink-0 items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors md:w-full ${
                   activeFeature === feature
-                    ? "border-cyan-400/50 bg-cyan-500/10 text-cyan-200"
+                    ? "border-emerald-400/50 bg-emerald-500/10 text-emerald-200"
                     : "border-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                 }`}
               >
@@ -443,7 +443,7 @@ const PortfolioContentEditor = ({ scope = "main" }) => {
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder={`Find ${featureInfo[activeFeature]?.toLowerCase() || "content"}...`}
                   aria-label={`Search ${featureInfo[activeFeature] || activeFeature}`}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-900/70 py-2.5 pl-9 pr-10 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-500/70"
+                  className="w-full rounded border border-slate-800 bg-slate-900/70 py-2.5 pl-9 pr-10 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-500/70"
                 />
                 {search && (
                   <button
@@ -490,7 +490,7 @@ const PortfolioContentEditor = ({ scope = "main" }) => {
                       type="button"
                       onClick={() => addRow(definition)}
                       disabled={Boolean(definition.parentTable && possibleParents.length === 0)}
-                      className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-cyan-500 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex shrink-0 items-center gap-2 rounded border border-slate-700 px-3 py-2 font-mono text-xs text-slate-300 transition hover:border-emerald-500 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <Plus size={16} /> Add item
                     </button>
@@ -613,7 +613,7 @@ const PortfolioContentEditor = ({ scope = "main" }) => {
                               className={inputClassName}
                             />
                           )}
-                          {pending === fieldKey && <span className="mt-1 block text-xs text-cyan-300">Saving…</span>}
+                          {pending === fieldKey && <span className="mt-1 block font-mono text-xs text-emerald-300">Saving…</span>}
                         </label>
                       );
                     };

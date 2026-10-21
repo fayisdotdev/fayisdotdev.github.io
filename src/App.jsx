@@ -10,15 +10,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Portfolio />} />
         <Route
-          path="/super-admin"
-          element={
-            <AdminGuard>
-              <AdminPanel />
-            </AdminGuard>
-          }
-        />
-
-        <Route
           path="/admin"
           element={
             <AdminGuard>

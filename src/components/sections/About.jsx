@@ -7,10 +7,10 @@ const About = ({ content, cards, strengths }) => {
     content.map(({ content_key, field_value }) => [content_key, field_value]),
   );
   return (
-      <section id="about" className="relative py-32 px-6">
+      <section id="about" className="relative scroll-mt-28 px-6 py-24 sm:py-28">
         <div className="max-w-6xl mx-auto relative z-10">
-          <h2 className="text-5xl font-black mb-16 text-center">
-            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+          <h2 className="mb-12 border-b border-slate-800 pb-4 text-3xl font-black tracking-tight text-slate-100 sm:mb-16 sm:text-4xl">
+            <span className="font-mono">
               {fields.heading}
             </span>
           </h2>
@@ -21,7 +21,7 @@ const About = ({ content, cards, strengths }) => {
                 .filter((item) => item.content_key.startsWith("paragraph_"))
                 .sort((a, b) => a.sort_order - b.sort_order)
                 .map((item) => (
-                  <p key={item.id || item.content_key} className="text-lg text-slate-300 leading-relaxed">
+                  <p key={item.id || item.content_key} className="text-base leading-relaxed text-slate-400 sm:text-lg">
                     {item.field_value}
                   </p>
                 ))}
@@ -33,14 +33,14 @@ const About = ({ content, cards, strengths }) => {
                 return (
                 <div
                   key={item.id || item.content_key}
-                  className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:scale-105"
+                  className="rounded-lg border border-slate-800/80 bg-slate-900/60 p-5 transition-colors duration-300 hover:border-emerald-500/50 sm:p-6"
                   style={{ animationDelay: `${idx * 0.1}s` }}
                 >
-                  <Icon className="text-cyan-400 mb-3" size={32} />
-                  <h3 className="font-semibold text-slate-200 mb-1">
+                  <Icon className="mb-3 text-emerald-400" size={28} />
+                  <h3 className="mb-1 font-mono font-bold text-slate-200">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-slate-400">                  {item.description}</p>
+                  <p className="text-sm text-slate-500">{item.description}</p>
                 </div>
               );})}
             </div>
@@ -50,7 +50,7 @@ const About = ({ content, cards, strengths }) => {
             {strengths.map((strength) => (
               <span
                 key={strength.id || strength.content_key}
-                className="px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20 rounded-full text-sm text-slate-300"
+                className="rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 font-mono text-xs text-slate-400"
               >
                 {strength.label}
               </span>

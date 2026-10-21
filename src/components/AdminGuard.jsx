@@ -1,6 +1,7 @@
 import { cloneElement, useEffect, useState } from "react";
 import { Eye, EyeOff, KeyRound, LogIn, LogOut, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import Background from "./layout/Background";
 
 const ADMIN_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
@@ -152,7 +153,7 @@ const AdminGuard = ({ children }) => {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-300 grid place-items-center">
+      <div className="grid min-h-screen place-items-center bg-[#0a0b0e] font-mono text-sm text-slate-300">
         Checking sign-in session...
       </div>
     );
@@ -161,12 +162,14 @@ const AdminGuard = ({ children }) => {
   if (isAdmin) return cloneElement(children, { role });
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 grid place-items-center p-6">
-      <section className="w-full max-w-md border border-slate-700/70 bg-slate-900/80 p-8 shadow-2xl shadow-black/30">
-        <div className="mb-7 flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-300">
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#0a0b0e] p-6 text-slate-100">
+      <Background />
+      <section className="relative z-10 w-full max-w-md border border-slate-800/80 bg-slate-950/90 p-6 shadow-2xl shadow-black/40 backdrop-blur sm:p-8">
+        <div className="mb-7 flex h-12 w-12 items-center justify-center rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
           <KeyRound size={24} />
         </div>
-        <h1 className="mb-2 text-2xl font-bold">Admin sign in</h1>
+        <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">Portfolio // Access control</p>
+        <h1 className="mb-2 font-mono text-2xl font-bold">Admin sign in</h1>
         <p className="mb-7 text-sm text-slate-400">
           Sign in with your authorized administrator account.
         </p>
@@ -180,7 +183,7 @@ const AdminGuard = ({ children }) => {
             <button
               type="button"
               onClick={() => supabase.auth.signOut()}
-              className="flex w-full items-center justify-center gap-2 border border-slate-700 px-4 py-3 font-semibold text-slate-200 transition-colors hover:border-cyan-500 hover:text-cyan-300"
+              className="flex w-full items-center justify-center gap-2 border border-slate-700 px-4 py-3 font-mono text-sm font-semibold text-slate-200 transition-colors hover:border-emerald-500 hover:text-emerald-300"
             >
               <LogOut size={18} />
               Sign out
@@ -193,7 +196,7 @@ const AdminGuard = ({ children }) => {
           >
             <label className="block text-sm text-slate-300">
               Email
-              <span className="mt-2 flex items-center gap-3 border border-slate-700 bg-slate-950/70 px-3 focus-within:border-cyan-500">
+              <span className="mt-2 flex items-center gap-3 border border-slate-700/80 bg-slate-950/80 px-3 focus-within:border-emerald-500">
                 <Mail size={18} className="shrink-0 text-slate-500" />
                 <input
                   type="email"
@@ -209,7 +212,7 @@ const AdminGuard = ({ children }) => {
 
             <label className="block text-sm text-slate-300">
               Password
-              <span className="mt-2 flex items-center gap-3 border border-slate-700 bg-slate-950/70 px-3 focus-within:border-cyan-500">
+              <span className="mt-2 flex items-center gap-3 border border-slate-700/80 bg-slate-950/80 px-3 focus-within:border-emerald-500">
                 <KeyRound size={18} className="shrink-0 text-slate-500" />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -225,7 +228,7 @@ const AdminGuard = ({ children }) => {
                   onClick={() => setShowPassword((visible) => !visible)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
-                  className="shrink-0 py-2 text-slate-400 hover:text-cyan-300"
+                  className="shrink-0 py-2 text-slate-400 hover:text-emerald-300"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -241,7 +244,7 @@ const AdminGuard = ({ children }) => {
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-sm bg-emerald-500 px-4 py-3 font-mono text-sm font-bold text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <LogIn size={18} />
               {submitting ? "Signing in..." : "Sign in"}

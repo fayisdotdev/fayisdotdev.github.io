@@ -10,27 +10,27 @@ const projectIcons = { Brain, Code, Database, Smartphone };
 
 const Projects = ({ projects, heading }) => {
   return (
-    <section id="projects" className="relative py-32 px-6">
+    <section id="projects" className="relative scroll-mt-28 px-6 py-24 sm:py-28">
       <div className="max-w-7xl mx-auto relative z-10">
-        <h2 className="text-5xl font-black mb-16 text-center">
-          <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+        <h2 className="mb-12 border-b border-slate-800 pb-4 text-3xl font-black tracking-tight text-slate-100 sm:mb-16 sm:text-4xl">
+          <span className="font-mono">
             {heading}
           </span>
         </h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project, idx) => (
             (() => {
               const Icon = projectIcons[project.icon] || Smartphone;
               return (
                 <div
                   key={idx}
-                  className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:scale-105 group"
+                  className="group overflow-hidden rounded-lg border border-slate-800/80 bg-slate-900/60 transition-colors duration-300 hover:border-emerald-500/50"
                 >
-              <div className="p-8 space-y-4">
+              <div className="space-y-4 p-5 sm:p-6">
                 <div className="flex items-start justify-between">
                   <Icon
-                    className="text-cyan-400 group-hover:scale-110 transition-transform duration-300"
+                    className="text-emerald-400 transition-transform duration-300 group-hover:scale-110"
                     size={40}
                   />
                   {project.link && (
@@ -38,7 +38,7 @@ const Projects = ({ projects, heading }) => {
                       href={project.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-slate-400 hover:text-cyan-400 transition-colors"
+                      className="text-slate-500 transition-colors hover:text-emerald-400"
                     >
                       <ExternalLink size={20} />
                     </a>
@@ -46,10 +46,10 @@ const Projects = ({ projects, heading }) => {
                 </div>
 
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-100 mb-2">
+                  <h3 className="mb-2 font-mono text-xl font-bold text-slate-100">
                     {project.title}
                   </h3>
-                  <p className="text-sm text-cyan-400 mb-1">{project.role}</p>
+                  <p className="mb-1 font-mono text-sm text-emerald-400">{project.role}</p>
                   <p className="text-xs text-slate-500">{project.period}</p>
                 </div>
 
@@ -63,7 +63,7 @@ const Projects = ({ projects, heading }) => {
                       key={i}
                       className="flex items-start gap-2 text-sm text-slate-400"
                     >
-                      <span className="text-emerald-400 mt-1">→</span>
+                      <span className="mt-1 text-emerald-400">→</span>
                       <span>{highlight}</span>
                     </div>
                   ))}
@@ -73,7 +73,7 @@ const Projects = ({ projects, heading }) => {
                   {project.tech.map((tech, i) => (
                     <span
                       key={i}
-                      className="px-3 py-1 bg-slate-700/50 text-xs text-slate-300 rounded-full border border-slate-600/50"
+                      className="rounded border border-slate-700/80 bg-slate-950/80 px-2.5 py-1 font-mono text-[10px] text-slate-400"
                     >
                       {tech}
                     </span>

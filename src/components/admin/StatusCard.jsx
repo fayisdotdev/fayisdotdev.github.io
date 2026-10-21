@@ -1,7 +1,7 @@
 const Card = ({ label, value }) => (
-  <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
-    <p className="text-slate-400 text-sm">{label}</p>
-    <p className="text-3xl font-bold mt-1">{value}</p>
+  <div className="rounded-lg border border-slate-800/80 bg-slate-900/60 p-5">
+    <p className="font-mono text-xs uppercase tracking-wider text-slate-500">{label}</p>
+    <p className="mt-1 font-mono text-3xl font-bold text-emerald-300">{value}</p>
   </div>
 );
 
