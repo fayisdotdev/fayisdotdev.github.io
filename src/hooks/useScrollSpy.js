@@ -7,13 +7,15 @@ export const useScrollSpy = (sections = []) => {
     const handleScroll = () => {
       const navigationBottom =
         document.querySelector("nav[aria-label='Main navigation']")?.getBoundingClientRect().bottom || 0;
-      const activationLine = Math.max(140, navigationBottom + 32);
       let current = sections[0];
 
       for (const section of sections) {
         const el = document.getElementById(section);
         if (!el) continue;
         const rect = el.getBoundingClientRect();
+        const scrollMarginTop =
+          Number.parseFloat(window.getComputedStyle(el).scrollMarginTop) || 0;
+        const activationLine = Math.max(navigationBottom + 8, scrollMarginTop + 8);
         if (rect.top > activationLine) break;
         current = section;
       }

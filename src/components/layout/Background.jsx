@@ -10,7 +10,9 @@ const Background = () => {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const nodeCount = 32;
+    const starCount = 140;
     let animationFrame;
+    let lastFrame = 0;
     let width = 0;
     let height = 0;
     const nodes = Array.from({ length: nodeCount }, () => ({
@@ -19,9 +21,19 @@ const Background = () => {
       vx: (Math.random() - 0.5) * 0.00012,
       vy: (Math.random() - 0.5) * 0.00012,
     }));
+    const stars = Array.from({ length: starCount }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      radius: Math.random() * 1.2 + 0.35,
+      alpha: Math.random() * 0.45 + 0.35,
+      phase: Math.random() * Math.PI * 2,
+      twinkleSpeed: Math.random() * 1.5 + 0.5,
+      vx: (Math.random() - 0.5) * 8,
+      vy: Math.random() * 16 + 6,
+    }));
 
     const resize = () => {
-      const ratio = window.devicePixelRatio || 1;
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width * ratio;
@@ -29,8 +41,37 @@ const Background = () => {
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
 
-    const draw = () => {
+    const draw = (timestamp = 0) => {
+      if (!reducedMotion.matches && lastFrame && timestamp - lastFrame < 32) {
+        animationFrame = window.requestAnimationFrame(draw);
+        return;
+      }
+      const deltaSeconds = lastFrame
+        ? Math.min((timestamp - lastFrame) / 1000, 0.05)
+        : 0;
+      if (timestamp) lastFrame = timestamp;
+
       context.clearRect(0, 0, width, height);
+      stars.forEach((star) => {
+        const twinkle = reducedMotion.matches
+          ? 1
+          : 0.68 + Math.sin(star.phase) * 0.32;
+        context.fillStyle = `rgba(186, 220, 255, ${star.alpha * twinkle})`;
+        context.beginPath();
+        context.arc(star.x * width, star.y * height, star.radius, 0, Math.PI * 2);
+        context.fill();
+
+        if (!reducedMotion.matches) {
+          star.phase += star.twinkleSpeed * deltaSeconds;
+          star.x += (star.vx * deltaSeconds) / width;
+          star.y += (star.vy * deltaSeconds) / height;
+          if (star.x < 0) star.x = 1;
+          if (star.x > 1) star.x = 0;
+          if (star.y < 0) star.y = 1;
+          if (star.y > 1) star.y = 0;
+        }
+      });
+
       nodes.forEach((node, index) => {
         const x = node.x * width;
         const y = node.y * height;
@@ -51,8 +92,8 @@ const Background = () => {
         context.arc(x, y, 1.5, 0, Math.PI * 2);
         context.fill();
         if (!reducedMotion.matches) {
-          node.x = (node.x + node.vx + 1) % 1;
-          node.y = (node.y + node.vy + 1) % 1;
+          node.x = (node.x + node.vx * (deltaSeconds * 30) + 1) % 1;
+          node.y = (node.y + node.vy * (deltaSeconds * 30) + 1) % 1;
         }
       });
 
